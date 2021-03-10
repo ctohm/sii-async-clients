@@ -1,0 +1,48 @@
+{
+  "name": "@ctohm/sii-async-clients",
+  "version": "0.11.0",
+  "description": "sii-async-clients",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "psalter": "vendor/bin/psalm    --config=psalm.xml  --alter  --issues=all --allow-backwards-incompatible-changes=false  --safe-types --dry-run",
+    "psalm": "vendor/bin/psalm --config=psalm.xml --long-progress --threads=4 --show-info=false  ",
+    "dev": "npm run development",
+    "development": "NODE_ENV=development BABEL_ENV=development mix",
+    "localhost": "ENV_FILE=./.env.local NODE_ENV=local BABEL_ENV=local  mix  ",
+    "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G   --configuration phpstan.neon ",
+    "tail": "tail -f storage/logs/laravel*`date +%Y-%m-%d`.* storage/logs/kint.debug.txt storage/logs/laravel.debug.json storage/logs/laravel.emails.json | bunyan",
+    "config:localhost": "make clean_env APP_ENV=local && php artisan config:list database.connections",
+    "config:dev": "make clean_env APP_ENV=development && php artisan config:list database.connections",
+    "lint": "eslint --ext .js,.vue resources/js"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "resources/**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "eslint": "^7.21.0",
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+    "babel-eslint": "^10.1.0",
+    "dotenv": "^8.2.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-security": "^1.4.0",
+    "tslib": "^2.1.0",
+    "tslog": "^3.0.2",
+    "typescript": "^4.0.2"
+  },
+  "browserslist": [
+    "last 2 version",
+    "> 1%"
+  ]
+}

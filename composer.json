@@ -1,0 +1,40 @@
+{
+    "name": "ctohm/sii-async-clients",
+    "description": "SOAP and Curl bases asyncronous Clients for the chilean SII",
+    "version": "0.0.1",
+    "license": "MIT",
+    "require": {
+        "php": "^7.4.3",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-redis": "*",
+        "ext-soap": "*",
+        "guzzlehttp/guzzle": "^6 || ^7",
+        "symfony/dom-crawler": "^5.1",
+  
+        "wsdltophp/packagegenerator":"^3.3.4" 
+    },
+    "require-dev": {
+        "emielmolenaar/phpcs-laravel": "^2.0",
+        "ergebnis/composer-normalize": "^2.13",
+        "ergebnis/php-cs-fixer-config": "^2.13",
+        "psalm/plugin-laravel": "^1.4",
+        "vimeo/psalm": "^4.6"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CTOhm\\SiiAsyncClients\\Providers\\SiiClientsProvider"
+            ]
+        },
+        "version": "0.0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "CTOhm\\SiiAsyncClients\\": "src/"
+        }
+    }
+}

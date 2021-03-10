@@ -1,0 +1,55 @@
+includes:
+    - ./phpstan-baseline.neon
+
+
+parameters:
+
+    paths:
+        - app
+        - bootstrap
+        - tests
+        - routes
+        - resources/packages
+
+    # bootstrapFiles:
+        # - _ide_helper_models.php
+        # - _ide_helper.php
+
+    tmpDir: ./.build/phpstan
+
+    # The level 8 is the highest level
+    level: 5
+
+
+
+    excludes_analyse:
+        - .build/*
+        - tests/*
+        - public/*
+        - storage/*
+        - vendor/*
+        - bootstrap/*
+        - resources/*
+        - bootstrap/resources/*
+        - bootstrap/cache/*
+        - database/factories/*
+        - routes/console.php
+        - app/Console/Commands/ConfigList.php
+        # - app/Logging/CustomizeFormatter.php
+    checkFunctionNameCase: true
+    checkMissingIterableValueType: false
+    checkInternalClassCaseSensitivity: true
+    universalObjectCratesClasses:
+        - SoapClient
+    earlyTerminatingMethodCalls:
+        Nette\Application\UI\Presenter:
+            - redirect
+            - redirectUrl
+            - sendJson
+            - sendResponse
+            - dd
+            - kdd
+            - ddh
+    earlyTerminatingFunctionCalls:
+            - redirect
+    ignoreErrors:
