@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * CTOhm - SII Async Clients
  */
@@ -29,15 +27,15 @@ use Psr\Http\Message\ResponseInterface;
  */
 class SiiAuthClient
 {
-    public const BASE_URL = 'https://www1.sii.cl/cgi-bin/Portal001';
+    const BASE_URL = 'https://www1.sii.cl/cgi-bin/Portal001';
     /**
      * @var int
      */
-    public const TIPO_EMITIDO = 1;
+    const TIPO_EMITIDO = 1;
     /**
      * @var int
      */
-    public const TIPO_RECIBIDO = 2;
+    const TIPO_RECIBIDO = 2;
 
     /**
      * @var null|false|resource
@@ -81,53 +79,44 @@ class SiiAuthClient
      */
     public static $client;
 
-    protected static $siiSignature;
-
-    private int $totaltime = 0;
+    protected int $totaltime = 0;
 
     /**
      * @var null|\GuzzleHttp\Cookie\CookieJar
      */
-    private static $cookiejar;
+    protected static $cookiejar;
 
     /**
      * @var array
      */
-    private static $certs;
+    protected static $certs;
 
     /**
      * @var null|callable
      *
      * @psalm-var callable(callable):callable|null
      */
-    private static $history;
+    protected static $history;
 
     /**
      * @var array
      */
-    private static $container = [];
+    protected static $container = [];
 
-    private static $rut_empresa;
+    protected static $rut_empresa;
 
-    private static $tipo_documento;
+    protected static $tipo_documento;
 
     /**
      * Constructs a new instance.
      */
-    public function __construct(SiiSignatureInterface $siiSignature, array $clientOptions = [])
+    public function __construct(?SiiSignatureInterface $siiSignature = null, array $clientOptions = [])
     {
-        self::$common_uri = $clientOptions['baseURL'] ?? self::$common_uri;
-        self::$siiSignature = $siiSignature;
-
         self::$tempFolder = \sys_get_temp_dir();
 
         self::$client = $this->getClient($clientOptions);
         // dump(self::$tempFolder);
-        self::$certs = [
-            'pkey' => $siiSignature->getPrivateKey(),
-            'cert' => $siiSignature->getPublicKey(),
-            'extracerts' => $siiSignature->getExtraCerts(),
-        ];
+        static::$certs = $siiSignature->getCerts()->toArray();
     }
 
     /**
@@ -139,12 +128,12 @@ class SiiAuthClient
      */
     public function authOnSii(array $options = ['debug' => false])
     {
-        if (self::$authenticatedOnSii) {
+        if (static::$authenticatedOnSii) {
             return;
         }
         $stack = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS | \DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
         //  dump(['authenticating against SII'=>$stack,'cookiejar'=>$this->getCookieJar($options)]);
-        $certpaths = self::getCertFiles();
+        $certpaths = static::getCertFiles();
         //dump($certpaths);
         $referencia = 'https://misiir.sii.cl/cgi_misii/siihome.cgi';
         $cookies = $options['cookies'] ?? $this->getCookieJar();
@@ -166,7 +155,7 @@ class SiiAuthClient
         $response = $this->sendSiiRequest('POST', 'https://herculesr.sii.cl/cgi_AUT2000/CAutInicio.cgi', $options);
 
         if (200 === $response->getStatusCode()) {
-            self::$authenticatedOnSii = true;
+            static::$authenticatedOnSii = true;
         } else {
             throw new \Exception(\sprintf('Response from SII has header %s', $response->getStatusCode()));
         }
@@ -194,7 +183,7 @@ class SiiAuthClient
         });
 
         if (\is_array($siiToken) && \array_key_exists('token', $siiToken)) {
-            $certpaths = self::getCertFiles();
+            $certpaths = static::getCertFiles();
 
             $response = $this->sendSiiRequest('GET', 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi', [
                 'headers' => [
@@ -222,7 +211,7 @@ class SiiAuthClient
             );
 
             if (\mb_strpos($contents, 'SELECCIONE A QUIEN REPRESENTAR') !== false) {
-                self::$authenticatedOnSii = true;
+                static::$authenticatedOnSii = true;
 
                 if ($debug) {
                     dump([__CLASS__ => \sprintf('using cached token %s', $siiToken['token'])]);
@@ -252,21 +241,21 @@ class SiiAuthClient
      *
      * @return \GuzzleHttp\Cookie\CookieJar the cookie jar
      */
-    public function getCookieJar(array $clientOptions = []): CookieJar
+    public function getCookieJar(array $clientOptions = []): \GuzzleHttp\Cookie\CookieJar
     {
         $clientOptions['cookies'] = $clientOptions['cookies'] ?? [];
 
-        if (!self::$cookiejar) {
+        if (!static::$cookiejar) {
             //  dump(['CookieJar existente'=>self::$cookiejar->getCookieByName('token')]);
             if ($clientOptions['cookies'] instanceof CookieJar) {
-                self::$cookiejar = $clientOptions['cookies'];
+                static::$cookiejar = $clientOptions['cookies'];
             } else {
                 //  dump('new cookiejar');
-                self::$cookiejar = new \GuzzleHttp\Cookie\CookieJar();
+                static::$cookiejar = new \GuzzleHttp\Cookie\CookieJar();
             }
         }
 
-        return self::$cookiejar;
+        return static::$cookiejar;
     }
 
     /**
@@ -274,18 +263,19 @@ class SiiAuthClient
      *
      * @return \GuzzleHttp\Client the client
      */
-    public function getClient(array $clientOptions = []): Client
+    public function getClient(array $clientOptions = []): \GuzzleHttp\Client
     {
         if (!self::$client) {
-            self::$history = Middleware::history(self::$container);
+            static::$history = Middleware::history(static::$container);
 
             $multiHandler = app(CurlMultiHandler::class);
-
+            // dump([__METHOD__ => $multiHandler]);
             $handlerStack = HandlerStack::create($multiHandler);
+            // or $handlerStack = HandlerStack::create($mock); if using the Mock handler.
 
             // Add the history middleware to the handler stack.
             //$handlerStack->push(self::$history);
-            $handlerStack->push(self::debugRequestHeaders());
+            $handlerStack->push(static::debugRequestHeaders());
 
             $clientOptions['cookies'] = $clientOptions['cookies'] ?? $this->getCookieJar($clientOptions);
 
@@ -296,12 +286,62 @@ class SiiAuthClient
                     \CURLOPT_SSLVERSION => \CURL_SSLVERSION_TLSv1_2,
                 ],
             ], $clientOptions);
-            //kdump($clientOptions);
 
             self::$client = new \GuzzleHttp\Client($clientOptions);
         }
 
         return self::$client;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getCerts()
+    {
+        return static::$certs;
+    }
+
+    /**
+     * Gets the cert files.
+     *
+     * @return array{client:string,key:string,ca:string|null} array of paths to the cert files
+     */
+    protected static function getCertFiles(): array
+    {
+        if (!static::$certpaths) {
+            static::$tmp_file_cert = \fopen(storage_path('tmp/tmp_file_cert.pem'), 'wb');
+            \fwrite(static::$tmp_file_cert, static::$certs['cert']);
+            $tmp_file_cert_path = \stream_get_meta_data(static::$tmp_file_cert)['uri'];
+
+            static::$tmp_file_pkey = \fopen(storage_path('tmp/tmp_file_pkey.key'), 'wb');
+            \fwrite(static::$tmp_file_pkey, static::$certs['pkey']);
+            $tmp_file_pkey_path = \stream_get_meta_data(static::$tmp_file_pkey)['uri'];
+            static::$certpaths = [
+                'client' => $tmp_file_cert_path,
+                'key' => $tmp_file_pkey_path,
+            ];
+
+            if (\array_key_exists('extracerts', static::$certs)) {
+                static::$tmp_file_extracerts = \fopen(storage_path('tmp/tmp_file_extracerts.pem'), 'wb');
+
+                foreach (static::$certs['extracerts'] as $cacert) {
+                    \fwrite(static::$tmp_file_extracerts, $cacert);
+                }
+                $tmp_file_extracerts_path = \stream_get_meta_data(static::$tmp_file_extracerts)['uri'];
+                static::$certpaths['ca'] = $tmp_file_extracerts_path;
+            }
+        }
+
+        return static::$certpaths;
+    }
+
+    /**
+     * Clears the client and its cookies.
+     */
+    protected function clear(): void
+    {
+        $this->getCookieJar()->clear();
+        static::$authenticatedOnSii = false;
     }
 
     /**
@@ -350,13 +390,12 @@ class SiiAuthClient
 
             if ($options['retry'] ?? 0) {
                 --$options['retry'];
-                $options['delay'] = config('sii-clients.default_request_delay_ms') * 10;  // generous backoff
+                $options['delay'] = config('sii.default_request_delay_ms') * 10;  // generous backoff
 
                 return $this->sendSiiRequest($verb, $url, $options);
             }
-            $res = new Response(500, [], $e->getMessage());
 
-            return $res ?? $dummyResponse;
+            return new Response(500, [], $e->getMessage());
         } catch (BadResponseException $e) {
             dump(ExceptionHelper::normalizeException($e));
             $res = $e->getResponse();
@@ -372,59 +411,13 @@ class SiiAuthClient
     }
 
     /**
-     * Gets the cert files.
-     *
-     * @return array{client:string,key:string,ca:string|null} array of paths to the cert files
-     */
-    protected static function getCertFiles(): array
-    {
-        if (!self::$certpaths) {
-            self::$tmp_file_cert = \fopen(storage_path('tmp/tmp_file_cert.pem'), 'wb');
-            \fwrite(self::$tmp_file_cert, self::$certs['cert']);
-            $tmp_file_cert_path = \stream_get_meta_data(self::$tmp_file_cert)['uri'];
-
-            self::$tmp_file_pkey = \fopen(storage_path('tmp/tmp_file_pkey.key'), 'wb');
-            \fwrite(self::$tmp_file_pkey, self::$certs['pkey']);
-            $tmp_file_pkey_path = \stream_get_meta_data(self::$tmp_file_pkey)['uri'];
-            self::$certpaths = [
-                'client' => $tmp_file_cert_path,
-                'key' => $tmp_file_pkey_path,
-            ];
-
-            if (\array_key_exists('extracerts', self::$certs)) {
-                self::$tmp_file_extracerts = \fopen(storage_path('tmp/tmp_file_extracerts.pem'), 'wb');
-
-                foreach (self::$certs['extracerts'] as $cacert) {
-                    \fwrite(self::$tmp_file_extracerts, $cacert);
-                }
-                $tmp_file_extracerts_path = \stream_get_meta_data(self::$tmp_file_extracerts)['uri'];
-                self::$certpaths['ca'] = $tmp_file_extracerts_path;
-            }
-        }
-
-        return self::$certpaths;
-    }
-
-    /**
-     * Clears the client and its cookies.
-     */
-    protected function clear(): void
-    {
-        $this->getCookieJar()->clear();
-        self::$authenticatedOnSii = false;
-    }
-
-    /**
      * @return \Closure
      *
      * @psalm-return \Closure(callable):\Closure(RequestInterface, array=):mixed
      */
     protected static function debugRequestHeaders()
     {
-        return /**
-         * @psalm-return \Closure(\Psr\Http\Message\RequestInterface, array=):\Closure(\Psr\Http\Message\RequestInterface, array=):mixed
-         */
-        static function (callable $handler): \Closure {
+        return static function (callable $handler) {
             return static function (
                 RequestInterface $request,
                 array $options = []

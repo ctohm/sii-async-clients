@@ -12,6 +12,7 @@ use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * This class stands for Get ServiceType.
@@ -21,6 +22,8 @@ use Illuminate\Support\Collection;
  */
 class QueryEstDteClient extends WsdlClientBase
 {
+    public const WSDL_SLUG = 'query_est_dte';
+
     /**
      *  Minimal options.
      *
@@ -28,7 +31,7 @@ class QueryEstDteClient extends WsdlClientBase
      */
     protected static $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://palena.sii.cl/DTEWS/QueryEstDte.jws?WSDL',
-        WsdlClientBase::LOCAL_FILE => 'wsdl/palena/QueryEstDte.jws',
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../resources/wsdl/QueryEstDte.jws',
         WsdlClientBase::WSDL_CLASSMAP => [self::class],
     ];
 
@@ -38,12 +41,12 @@ class QueryEstDteClient extends WsdlClientBase
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
             $this->setToken($clientOptions['soapToken']);
-            $this->getAsyncSoapClient();
         }
     }
 
@@ -56,21 +59,20 @@ class QueryEstDteClient extends WsdlClientBase
      * @uses WsdlClientBase::setResult()
      *
      * @param string[] ...$args
-     *
-     * @return bool|string
      */
     public function getEstDte(
         ...$args
-    ) {
+    ): PromiseInterface {
         return $this->getEstDteAsync(
             ...$args
         )
-            ->then(function ($result) {
-                $this->setResult($result);
-
-                return $result;
-            })
-            ->wait();
+            ->otherwise(function ($err) use ($args) {
+                \usleep(500000);
+                // retry once
+                return $this->getEstDteAsync(
+                    ...$args
+                );
+            });
     }
 
     /**
@@ -119,10 +121,10 @@ class QueryEstDteClient extends WsdlClientBase
             $montoDte,
             $token
         )
-            ->then(static function (
+            ->then(function (
                 string $getEstDteRespuesta
             ) {
-                return self::parseSIIRespuesta($getEstDteRespuesta);
+                return tap(self::parseSIIRespuesta($getEstDteRespuesta), fn ($result) => $this->setResult($result));
             });
     }
 
@@ -135,7 +137,9 @@ class QueryEstDteClient extends WsdlClientBase
                 Collection $accum,
                 array $item
             ): Collection {
-                return $accum->merge(\array_change_key_case($item))->siiKeysToCamelCase()->except(['siiRESPHDR', 'SII:RESP_HDR']);
+                $fixed = collect($item)->keys()->map(static fn ($key) => Str::camel(\mb_strtolower($key)))->combine(\array_values($item));
+
+                return $accum->merge($fixed);
             },
             collect([])
         );

@@ -42,4 +42,6 @@ interface SiiSignatureInterface
      * @return string Llave private de la firma
      */
     public function getPrivateKey($trimPrefixAndSuffix = false): string;
+
+    public function getCerts(): CertificatesObjectInterface;
 }

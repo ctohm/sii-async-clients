@@ -18,7 +18,6 @@ use CTOhm\SiiAsyncClients\Wsdl\RpetcWsdlClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use CTOhm\SiiAsyncClients\Wsdl\TokenGetterClient;
 use GuzzleHttp\Promise\FulfilledPromise;
-use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Facades\Log;
 
@@ -32,7 +31,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
      */
     public static $debug = true; // set to true to log soap requests
 
-    public static $defaultClientOptions = [
+    public static array $defaultClientOptions = [
         'trace' => true,
         'exceptions' => true,
         'keep_alive' => false,
@@ -78,7 +77,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
      */
     public function consultarDocDteCedible(
         Structures\EventosHistoricosParameters $eventosHistoricosParameters
-    ): array {
+    ): PromiseInterface {
         $listarEventosHistDocParams = [
             'rutEmisor' => $eventosHistoricosParameters->rutEmisor,
             'dvEmisor' => $eventosHistoricosParameters->dvEmisor,
@@ -86,29 +85,22 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             'folio' => $eventosHistoricosParameters->folio,
         ];
         //throw new \InvalidArgumentException(sprintf('Testing exception on %s',__METHOD__));
-        try {
-            $startTime = \microtime(true);
 
-            return $this->getRegistroReclamoDteClientInstance()
-                ->consultarDocDteCedibleAsync(...\array_values($listarEventosHistDocParams))
-                ->then(static function ($result) {
-                    //kdump(['method' => 'consultarDocDteCedibleAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
-                    return (array) $result;
-                })
-                ->otherwise(static function ($err) {
-                    kdump(ExceptionHelper::normalizeException($err));
+        $startTime = \microtime(true);
 
-                    return [];
-                })
-                ->wait();
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
+        return $this->getRegistroReclamoDteClientInstance()
+            ->consultarDocDteCedibleAsync(...\array_values($listarEventosHistDocParams))
+            ->then(static function ($result) {
+                //kdump(['method' => 'consultarDocDteCedibleAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
+                return (array) $result;
+            })
+            ->otherwise(static function ($e) {
+                kdump([\get_class($e) => __METHOD__]);
 
-            $logger = debuglog(); //->warn($e);
-            kdump($logger);
+                kdump(ExceptionHelper::normalizeException($e));
 
-            return new Promise(static fn () => ['error' => $e->getMessage()]);
-        }
+                return new FulfilledPromise(['error' => $e->getMessage()]);
+            });
     }
 
     /**
@@ -124,26 +116,20 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             'folio' => $eventosHistoricosParameters->folio,
         ];
 
-        try {
-            $startTime = \microtime(true);
+        $startTime = \microtime(true);
 
-            return $this->getRegistroReclamoDteClientInstance()->listarEventosHistDocAsync(
-                ...\array_values($listarEventosHistDocParams)
-            )->then(static function ($result) {
-                //kdump(['method' => 'listarEventosHistDocAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                ]);
+        return $this->getRegistroReclamoDteClientInstance()->listarEventosHistDocAsync(
+            ...\array_values($listarEventosHistDocParams)
+        )->then(static function ($result) {
+            //kdump(['method' => 'listarEventosHistDocAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                ]);
 
-                return (new Structures\EventosHistoricosResponse((array) $result))->jsonSerialize();
-            })->otherwise(static function ($err) {
-                kdump(ExceptionHelper::normalizeException($err));
-
-                return [];
-            });
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
-            Log::warning($e);
+            return (new Structures\EventosHistoricosResponse((array) $result))->jsonSerialize();
+        })->otherwise(static function ($e) {
+            kdump([\get_class($e) => __METHOD__]);
+            kdump(ExceptionHelper::normalizeException($e));
 
             return new FulfilledPromise(['error' => $e->getMessage()]);
-        }
+        });
     }
 
     /**
@@ -155,28 +141,13 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         $serializedParams = $estadoDteParameters->jsonSerialize();
         $soapMethodParams = \array_values($serializedParams);
 
-        try {
-            $startTime = \microtime(true);
+        $startTime = \microtime(true);
 
-            return $this->getQueryEstDteClientInstance()->getEstDteAsync(...$soapMethodParams)->then(
-                static function (array $parsedResponse) {
-                    return $parsedResponse;
-                }
-            )
-                ->then(static function ($result) {
-                    //kdump(['method' => 'getEstDteAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
-                    return $result;
-                })->otherwise(static function ($err) {
-                    kdump(ExceptionHelper::normalizeException($err));
+        return $this->getQueryEstDteClientInstance()->getEstDte(...$soapMethodParams)->otherwise(static function ($e) {
+            kdump(ExceptionHelper::normalizeException($e));
 
-                    return [];
-                });
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
-            Log::warning($e);
-
-            return new Promise(static fn () => ['error' => $e->getMessage()]);
-        }
+            return new FulfilledPromise(['error' => $e->getMessage()]);
+        });
     }
 
     /**
@@ -188,85 +159,46 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         $serializedParams = $estadoDteAvParameters->jsonSerialize();
         $soapMethodParams = \array_values($serializedParams);
 
-        try {
-            $startTime = \microtime(true);
+        $startTime = \microtime(true);
 
-            return $this->getQueryEstDteAvanzadoClientInstance()
-                ->getEstDteAvAsync(...$soapMethodParams)
-                ->then(static function ($result) {
-                    //kdump(['method' => 'getEstDteAvAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
-                    return $result;
-                })->otherwise(static function ($e) {
-                    dump(ExceptionHelper::normalizeException($e));
-                    Log::warning($e);
+        return $this->getQueryEstDteAvanzadoClientInstance()
+            ->getEstDteAvAsync(...$soapMethodParams)
+            ->otherwise(static function ($e) {
+                dump(ExceptionHelper::normalizeException($e));
+                Log::warning($e);
 
-                    return new Promise(static fn () => ['error' => $e->getMessage()]);
-                });
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
-            Log::warning($e);
-
-            return new Promise(static fn () => ['error' => $e->getMessage()]);
-        }
+                return new FulfilledPromise(['error' => $e->getMessage()]);
+            });
     }
 
     public function getEstadoCesion(
         Structures\EstadoCesionParameters $estadoCesionParameters
     ): PromiseInterface {
-        try {
-            $rpetcClient = $this->getRpetcWsdlClientInstance();
+        return $this->getRpetcWsdlClientInstance()->getEstCesion(
+            ...\array_values($estadoCesionParameters->jsonSerialize())
+        )
+            ->otherwise(static function ($e) {
+                dump(ExceptionHelper::normalizeException($e));
+                Log::warning($e);
 
-            $startTime = \microtime(true);
-
-            return $rpetcClient->getEstCesion(
-                ...\array_values($estadoCesionParameters->jsonSerialize())
-            )
-                ->then(static function ($result) {
-                    //kdump(['method' => 'getEstCesion','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
-                    return $result;
-                })
-                ->otherwise(static function ($e) {
-                    dump(ExceptionHelper::normalizeException($e));
-                    Log::warning($e);
-
-                    return new Promise(static fn () => ['error' => $e->getMessage()]);
-                });
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
-            Log::warning($e);
-
-            return new Promise(static fn () => ['error' => $e->getMessage()]);
-        }
+                return new FulfilledPromise(['error' => $e->getMessage()]);
+            });
     }
 
     public function getEstadoCesionRelacion(
         Structures\EstadoCesionRelacionParameters $estadoCesionRelacionParameters
     ): PromiseInterface {
-        try {
-            $rpetcClient = $this->getRpetcWsdlClientInstance();
+        $startTime = \microtime(true);
 
-            $startTime = \microtime(true);
+        return $this->getRpetcWsdlClientInstance()->getEstCesionRelac(
+            ...\array_values($estadoCesionRelacionParameters->jsonSerialize())
+        )
+            ->otherwise(static function ($e) {
+                dump(ExceptionHelper::normalizeException($e));
+                Log::warning($e);
 
-            return $rpetcClient->getEstCesionRelac(
-                ...\array_values($estadoCesionRelacionParameters->jsonSerialize())
-            )
-                ->then(static function ($result) {
-                    //kdump(['method' => 'getEstCesionRelac','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
-                    return $result;
-                })
-
-                ->otherwise(static function ($e) {
-                    dump(ExceptionHelper::normalizeException($e));
-                    Log::warning($e);
-
-                    return new Promise(static fn () => ['error' => $e->getMessage()]);
-                });
-        } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
-            Log::warning($e);
-
-            return new Promise(static fn () => ['error' => $e->getMessage()]);
-        }
+                return new FulfilledPromise(['error' => $e->getMessage()]);
+            });
     }
 
     /**

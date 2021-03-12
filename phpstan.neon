@@ -1,19 +1,11 @@
-includes:
-    - ./phpstan-baseline.neon
+
 
 
 parameters:
 
     paths:
-        - app
-        - bootstrap
-        - tests
-        - routes
-        - resources/packages
+        - src
 
-    # bootstrapFiles:
-        # - _ide_helper_models.php
-        # - _ide_helper.php
 
     tmpDir: ./.build/phpstan
 
@@ -25,17 +17,8 @@ parameters:
     excludes_analyse:
         - .build/*
         - tests/*
-        - public/*
-        - storage/*
         - vendor/*
-        - bootstrap/*
-        - resources/*
-        - bootstrap/resources/*
-        - bootstrap/cache/*
-        - database/factories/*
-        - routes/console.php
-        - app/Console/Commands/ConfigList.php
-        # - app/Logging/CustomizeFormatter.php
+        - node_modules/*
     checkFunctionNameCase: true
     checkMissingIterableValueType: false
     checkInternalClassCaseSensitivity: true

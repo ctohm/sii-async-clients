@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Admin FC
+ * CTOhm - SII Async Clients
  */
 
 use Ergebnis\PhpCsFixer\Config;
 
-\define('PROJECT_ROOT', \str_replace('/.vscode', '', __DIR__));
-$json_path = PROJECT_ROOT . '/composer.json';
+\define('PROJECT_ROOT', dirname(__DIR__, 4));
+$json_path = __DIR__ . '/composer.json';
 $composerinfo = \json_decode(\file_get_contents($json_path));
 
-require_once PROJECT_ROOT . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 $version = $composerinfo->extra->version;
-$header = "Admin Financiatec";
+$header = "CTOhm - SII Async Clients";
 
 $config = Config\Factory::fromRuleSet(new Config\RuleSet\Php74($header), [
 	'declare_strict_types' => false,
@@ -34,31 +34,15 @@ $config = Config\Factory::fromRuleSet(new Config\RuleSet\Php74($header), [
 $project_path = getcwd();
 $config->getFinder()
 	->in([
-		PROJECT_ROOT . '/app',
-		PROJECT_ROOT . '/config',
-		PROJECT_ROOT . '/database',
-		PROJECT_ROOT . '/routes',
-		PROJECT_ROOT . '/tests',
+		__DIR__
 	])
 	->name('*.php')
-	->notName('*.blade.php')
 	->exclude([
 		'.build',
 		'.configs',
 		'__pycache__',
-		'assets',
-		'docs',
+		'.git',
 		'node_modules',
-		'temp',
-		'tests',
-		'storage',
-		'dist',
-		'fabfile',
-		'public',
-		'resources',
-		'sessions',
-		'src', 'temp', 'tests',
-
 		'vendor',
 		'.github',
 	])
@@ -66,6 +50,6 @@ $config->getFinder()
 	->ignoreDotFiles(true)
 	->ignoreVCS(true);
 
-$config->setCacheFile(PROJECT_ROOT . '/.build/phpcs/csfixer.cache');
+$config->setCacheFile(PROJECT_ROOT . '/.build/phpcs/csfixer2.cache');
 
 return $config;

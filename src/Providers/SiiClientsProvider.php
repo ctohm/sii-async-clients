@@ -48,6 +48,10 @@ final class SiiClientsProvider extends ServiceProvider
             'command.wsdl2php:generate',
         ]);
 
+        $this->mergeConfigFrom([
+            __DIR__ . '/../config/sii-clients.php' => 'sii-clients',
+        ], 'config');
+
         $this->app->singleton(SoapProvider::class, static function ($app, ?array $args = null): SoapProvider {
             $siiSignature = self::verifySiiSignatureParameter($args);
 

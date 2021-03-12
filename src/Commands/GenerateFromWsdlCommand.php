@@ -20,16 +20,16 @@ final class GenerateFromWsdlCommand extends Command
      * @var string
      */
     protected $signature = 'wsdl2php:generate
-                            {service : llave del WSDL (ej QueryEstDte, WsRPETCConsulta, WsRegistroReclamoDte)}
-                            {--namespace=?: namespace de las clases a crear. Por defecto App\Wsdl}
-                            {--destination=? : ruta de los archivos a crear. Por defecto: app/Wsdl}';
+                            {origin : the WSDL\'s url}
+                            {--namespace=?: namespace for the classes that will be generated. (default "App\\Wsdl")}
+                            {--destination=? : physical path for generated classes. (default app/Wsdl)}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Obtiene los dte pendientes que aun no se descargan';
+    protected $description = 'Generates WSDLs clients, methods and struct types for a given WSDL service';
 
     /**
      * @var string[]
@@ -62,15 +62,17 @@ final class GenerateFromWsdlCommand extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return void
      */
     public function handle(): void
     {
         $service = $this->argument('service');
-        $url = self::$siiEndpoints[$service] ?? \sprintf('https://palena.sii.cl/DTEWS/%s.jws?WSDL', $service);
-        $destination = \sprintf('./app/Wsdl/%s', $service);
-        $namespace = \sprintf('App\\Wsdl\\%s', $service);
+        $slug = \end(\explode('/', \parse_url('https://efactura.dgi.gub.uy:6470/ePrueba/ws_personaGetActEmpresarialPrueba?wsdl', \PHP_URL_PATH)));
+
+        $destination = \sprintf('App\\Wsdl\\%s', $service);
+        $namespace = $this->argument('namespace') ?? \sprintf('App\\Wsdl\\%s', $service);
+        $url = self::$siiEndpoints[$service] ?? $service;
+        $destination = \sprintf('./app/Wsdl/%s', $this->argument('destination') ?? $slug);
+        $namespace = \sprintf('App\\Wsdl\\%s', $slug);
 
         try {
             // Options definition: the configuration file parameter is optional

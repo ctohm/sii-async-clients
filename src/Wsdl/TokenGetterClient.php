@@ -12,6 +12,7 @@ use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\CrSeedClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 
 /**
@@ -22,12 +23,16 @@ use WsdlToPhp\PackageBase\AbstractSoapClientBase;
  */
 final class TokenGetterClient extends WsdlClientBase
 {
+    public const WSDL_SLUG = 'get_token_from_seed';
+
     /**
      * Minimal options.
      */
     protected static $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://palena.sii.cl/DTEWS/GetTokenFromSeed.jws?WSDL',
         WsdlClientBase::WSDL_CLASSMAP => [],
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../resources/wsdl/GetTokenFromSeed.jws',
+
         WsdlClientBase::WSDL_TRACE => true,
         WsdlClientBase::WSDL_CACHE_WSDL => \WSDL_CACHE_NONE,
     ];
@@ -36,6 +41,7 @@ final class TokenGetterClient extends WsdlClientBase
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         parent::__construct(\array_merge(self::$clientOptions, $clientOptions));
     }
 
@@ -60,7 +66,7 @@ final class TokenGetterClient extends WsdlClientBase
         if (Cache::has('soapToken')) {
             $soapToken = Cache::get('soapToken');
 
-            // kdump([__CLASS__ => \sprintf('Using cached token %s', $soapToken)]);
+        // kdump([__CLASS__ => \sprintf('Using cached token %s', $soapToken)]);
         } else {
             $soapToken = Cache::remember('soapToken', 300, function () use ($siiSignature, $loopOptions) {
                 $loopOptions = \array_merge(
@@ -127,14 +133,8 @@ final class TokenGetterClient extends WsdlClientBase
             $this->setResult($this->getSoapClient()->getToken(...$args));
             $soapResultBody = $this->getResult();
 
-            $xml = \is_string($soapResultBody) ? new \SimpleXMLElement($soapResultBody, \LIBXML_COMPACT) : $soapResultBody;
+            $xml = new \SimpleXMLElement($soapResultBody, \LIBXML_COMPACT);
 
-            if (false === $xml) {
-                throw new \Exception(\sprintf(
-                    'Could not get a token from the SII %s',
-                    $soapResultBody
-                ));
-            }
             $responseEstado = (string) $xml
                 ->xpath('/SII:RESPUESTA/SII:RESP_HDR/ESTADO')[0];
 
@@ -144,6 +144,7 @@ final class TokenGetterClient extends WsdlClientBase
                     $responseEstado
                 ));
             }
+
             return (string) $xml
                 ->xpath('/SII:RESPUESTA/SII:RESP_BODY/TOKEN')[0];
         } catch (\SoapFault $soapFault) {
@@ -152,7 +153,7 @@ final class TokenGetterClient extends WsdlClientBase
             if ($loopOptions['retriesSoFar'] >= $loopOptions['retryAttempts']) {
                 throw $soapFault;
             }
-            debuglog()->warning($soapFault);
+            Log::warning($soapFault);
             \usleep(
                 config('sii-clients.default_request_delay_ms') * 5 * 1000  // milliseconds * 1000 to deal in microseconds, 5x backoff
                     * \min(8, 2 ^ $loopOptions['retriesSoFar'])

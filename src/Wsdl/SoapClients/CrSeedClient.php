@@ -16,16 +16,21 @@ namespace CTOhm\SiiAsyncClients\Wsdl\SoapClients;
  */
 final class CrSeedClient extends WsdlClientBase
 {
+    public const WSDL_SLUG = 'cr_seed';
+
     /**
      * Minimal options.
      */
     protected static $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://palena.sii.cl/DTEWS/CrSeed.jws?WSDL',
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../../resources/wsdl/CrSeed.jws',
+
         WsdlClientBase::WSDL_CLASSMAP => [],
     ];
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         parent::__construct(\array_merge(self::$clientOptions, $clientOptions));
     }
 

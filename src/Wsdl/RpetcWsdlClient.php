@@ -21,6 +21,8 @@ use Illuminate\Support\Collection;
  */
 final class RpetcWsdlClient extends WsdlClientBase
 {
+    public const WSDL_SLUG = 'ws_rpetc_consulta';
+
     /**
      * Minimal options.
      *
@@ -28,7 +30,8 @@ final class RpetcWsdlClient extends WsdlClientBase
      */
     protected static $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://palena.sii.cl/DTEWS/services/wsRPETCConsulta?WSDL',
-        WsdlClientBase::WSDL_CLASSMAP => [self::class],        WsdlClientBase::LOCAL_FILE => 'wsdl/palena/wsRPETCConsulta.jws',
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../resources/wsdl/wsRPETCConsulta.jws',
+        WsdlClientBase::WSDL_CLASSMAP => [self::class],
     ];
 
     protected array $mergedClientOptions = [];
@@ -37,12 +40,14 @@ final class RpetcWsdlClient extends WsdlClientBase
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
+
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
+            $clientOptions['classmap'] = self::$clientOptions[WsdlClientBase::WSDL_CLASSMAP];
             $this->setToken($clientOptions['soapToken']);
-            $this->getAsyncSoapClient();
         }
     }
 
@@ -68,20 +73,16 @@ final class RpetcWsdlClient extends WsdlClientBase
         $tipoDoc,
         $folioDoc/*, $idCesion*/
     ): PromiseInterface {
-        try {
-            return $this->getAsyncSoapClient()->getEstCesion(
-                $token,
-                $rutEmisor,
-                $dVEmisor,
-                $tipoDoc,
-                $folioDoc/*, $idCesion*/
-            )
-                ->then(fn ($result) => $this->parseConsultaRTC($result));
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+        return $this->getAsyncSoapClient()->getEstCesion(
+            $token,
+            $rutEmisor,
+            $dVEmisor,
+            $tipoDoc,
+            $folioDoc/*, $idCesion*/
+        )
+            ->then(fn ($result) => $this->parseConsultaRTC($result))->otherwise(function ($soapFault) {
+                return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
+            });
     }
 
     /**
@@ -111,22 +112,19 @@ final class RpetcWsdlClient extends WsdlClientBase
         $rutEmpresa,
         $dVEmpresa
     ): PromiseInterface {
-        try {
-            return $this->getAsyncSoapClient()->getEstCesionRelac(
-                $token,
-                $rutEmisor,
-                $dVEmisor,
-                $tipoDoc,
-                $folioDoc,
-                $rutEmpresa,
-                $dVEmpresa
-            )
-                ->then(fn ($result) => $this->parseConsultaRTC($result));
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+        return $this->getAsyncSoapClient()->getEstCesionRelac(
+            $token,
+            $rutEmisor,
+            $dVEmisor,
+            $tipoDoc,
+            $folioDoc,
+            $rutEmpresa,
+            $dVEmpresa
+        )
+            ->then(fn ($result) => $this->parseConsultaRTC($result))
+            ->otherwise(function ($soapFault) {
+                return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
+            });
     }
 
     /**
@@ -146,15 +144,13 @@ final class RpetcWsdlClient extends WsdlClientBase
         $token,
         $trackId
     ) {
-        try {
-            $this->setResult($this->getSoapClient()->getEstEnvio($token, $trackId));
-
-            return $this->getResult();
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+        return $this->getAsyncSoapClient()->getEstEnvio($token, $trackId)
+            ->then(function ($result) {
+                return tap($result, fn ($result) => $this->setResult($result));
+            })
+            ->otherwise(function ($soapFault) {
+                return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
+            });
     }
 
     /**

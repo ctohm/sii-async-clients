@@ -17,6 +17,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 
@@ -29,8 +30,11 @@ use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 abstract class WsdlClientBase extends AbstractSoapClientBase
 {
     public const LOCAL_FILE = 'local_file';
+    public const WSDL_SLUG = 'slug';
 
     protected static ?string $siiToken = null;
+
+    protected array $mergedClientOptions = [];
 
     /**
      * Undocumented variable.
@@ -63,7 +67,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     final public function getAsyncSoapClient(): AsyncSoapClient
     {
         $clientOptions = $this->mergedClientOptions;
-        $localWsdl = storage_path($clientOptions[self::LOCAL_FILE]);
+        $localWsdl = $clientOptions[self::LOCAL_FILE];
 
         if (self::$asyncSoapClientsArray[$localWsdl] ?? null) {
             return self::$asyncSoapClientsArray[$localWsdl];
@@ -78,7 +82,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
         $multiHandler = app(CurlMultiHandler::class);
         $clientOptions['handler'] = HandlerStack::create($multiHandler);
         $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
-
+        $clientOptions['classmap'] = $clientOptions[self::WSDL_CLASSMAP];
         self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $clientOptions);
 
         return self::$asyncSoapClientsArray[$localWsdl];
@@ -107,12 +111,12 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
             $this->logSoapResponse($soapResultBody, $requestFn, $args ?? [], $soapOptions);
 
             return $soapResultBody;
-        } catch (\SoapFault $e) {
-            debuglog()->warning($e);
+        } catch (\error $e) {
+            Log::warning($e);
 
             throw new \Exception($this->throwSoapException($e));
         } catch (\Exception $e) {
-            debuglog()->warning($e);
+            Log::error($e);
 
             if ($soapOptions['retriesSoFar'] >= $soapOptions['retryAttempts']) {
                 throw new \Exception($this->throwSoapException($e));
@@ -178,6 +182,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
 
         try {
             $this->getSoapClient()->__setCookie('TOKEN', $soapToken);
+            $this->getAsyncSoapClient()->__setCookie('TOKEN', $soapToken);
 
             return $this;
         } catch (\SoapFault $soapFault) {
@@ -192,7 +197,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
      *
      * @see AbstractSoapClientBase::getResult()
      *
-     * @return string
+     * @return null|string
      */
     public function getResult()
     {

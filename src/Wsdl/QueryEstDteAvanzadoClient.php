@@ -20,6 +20,8 @@ use GuzzleHttp\Promise\PromiseInterface;
  */
 final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 {
+    public const WSDL_SLUG = 'query_est_dte_av';
+
     /**
      *  Minimal options.
      *
@@ -27,7 +29,8 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
      */
     protected static $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://palena.sii.cl/DTEWS/services/QueryEstDteAv?wsdl',
-        WsdlClientBase::LOCAL_FILE => 'wsdl/palena/QueryEstDteAv.jws',
+
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../resources/wsdl/QueryEstDteAv.jws',
         WsdlClientBase::WSDL_CLASSMAP => [self::class],
     ];
 
@@ -37,6 +40,7 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
         parent::__construct($this->mergedClientOptions);
 
@@ -47,61 +51,16 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
     }
 
     /**
-     * Method to call the operation originally named getEstDteAv.
-     *
-     * @uses WsdlClientBase::getResult()
-     * @uses WsdlClientBase::getSoapClient()
-     * @uses WsdlClientBase::saveLastError()
-     * @uses WsdlClientBase::setResult()
-     *
-     * @param string $rutEmpresa
-     * @param string $dvEmpresa
-     * @param string $rutReceptor
-     * @param string $dvReceptor
-     * @param string $tipoDte
-     * @param string $folioDte
-     * @param string $fechaEmisionDte
-     * @param string $montoDte
-     * @param string $firmaDte
-     * @param string $token
+     * @param array $args
      *
      * @return false|string
      */
     public function getEstDteAv(
-        $rutEmpresa,
-        $dvEmpresa,
-        $rutReceptor,
-        $dvReceptor,
-        $tipoDte,
-        $folioDte,
-        $fechaEmisionDte,
-        $montoDte,
-        $firmaDte,
-        $token
+        ...$args
     ) {
-        try {
-            $this->setResult($this->getSoapClient()->getEstDteAv(
-                $rutEmpresa,
-                $dvEmpresa,
-                $rutReceptor,
-                $dvReceptor,
-                $tipoDte,
-                $folioDte,
-                $fechaEmisionDte,
-                $montoDte,
-                $firmaDte,
-                $token
-            ));
-
-            return $this->getResult();
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(
-                __METHOD__,
-                $soapFault
-            );
-
-            return false;
-        }
+        return $this->getEstDteAvAsync(
+            ...$args
+        )->wait();
     }
 
     /**
@@ -146,12 +105,12 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
             $montoDte,
             $firmaDte,
             $token
-        )->then(static function (
+        )->then(function (
             string $getEstDteRespuesta
         ) {
-            // dump($getEstDteRespuesta);
-
-            return self::parseSIIRespuesta($getEstDteRespuesta);
+            return tap(self::parseSIIRespuesta($getEstDteRespuesta), fn ($result) => $this->setResult($result));
+        })->otherwise(function ($soapFault) {
+            return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
         });
     }
 }

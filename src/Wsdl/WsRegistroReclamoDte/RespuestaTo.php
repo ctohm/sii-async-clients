@@ -77,10 +77,8 @@ final class RespuestaTo extends AbstractStructBase
 
     /**
      * Get codResp value.
-     *
-     * @return int
      */
-    public function getCodResp()
+    public function getCodResp(): ?int
     {
         return $this->codResp;
     }
@@ -92,12 +90,8 @@ final class RespuestaTo extends AbstractStructBase
      *
      * @return \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\RespuestaTo
      */
-    public function setCodResp($codResp = null)
+    public function setCodResp(?int $codResp = null): self
     {
-        // validation for constraint: int
-        if (null !== $codResp && !(\is_int($codResp) || \ctype_digit($codResp))) {
-            throw new \InvalidArgumentException(\sprintf('Invalid value %s, please provide an integer value, %s given', \var_export($codResp, true), \gettype($codResp)), __LINE__);
-        }
         $this->codResp = $codResp;
 
         return $this;
@@ -105,10 +99,8 @@ final class RespuestaTo extends AbstractStructBase
 
     /**
      * Get descResp value.
-     *
-     * @return string
      */
-    public function getDescResp()
+    public function getDescResp(): ?string
     {
         return $this->descResp;
     }
@@ -120,12 +112,8 @@ final class RespuestaTo extends AbstractStructBase
      *
      * @return \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\RespuestaTo
      */
-    public function setDescResp($descResp = null)
+    public function setDescResp(?string $descResp = null): self
     {
-        // validation for constraint: string
-        if (null !== $descResp && !\is_string($descResp)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid value %s, please provide a string, %s given', \var_export($descResp, true), \gettype($descResp)), __LINE__);
-        }
         $this->descResp = $descResp;
 
         return $this;
@@ -139,35 +127,9 @@ final class RespuestaTo extends AbstractStructBase
      *
      * @return null|\CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\DteEventoDocTo[]
      */
-    public function getListaEventosDoc()
+    public function getListaEventosDoc(): ?array
     {
         return $this->listaEventosDoc ?? null;
-    }
-
-    /**
-     * This method is responsible for validating the values passed to the setListaEventosDoc method
-     * This method is willingly generated in order to preserve the one-line inline validation within the setListaEventosDoc method.
-     *
-     * @return string A non-empty message if the values does not match the validation rules
-     */
-    public static function validateListaEventosDocForArrayConstraintsFromSetListaEventosDoc(array $values = [])
-    {
-        $message = '';
-        $invalidValues = [];
-
-        foreach ($values as $respuestaToListaEventosDocItem) {
-            // validation for constraint: itemType
-            if (!$respuestaToListaEventosDocItem instanceof \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\DteEventoDocTo) {
-                $invalidValues[] = \is_object($respuestaToListaEventosDocItem) ? \get_class($respuestaToListaEventosDocItem) : \sprintf('%s(%s)', \gettype($respuestaToListaEventosDocItem), \var_export($respuestaToListaEventosDocItem, true));
-            }
-        }
-
-        if (!empty($invalidValues)) {
-            $message = \sprintf('The listaEventosDoc property can only contain items of type \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\DteEventoDocTo, %s given', \is_object($invalidValues) ? \get_class($invalidValues) : (\is_array($invalidValues) ? \implode(', ', $invalidValues) : \gettype($invalidValues)));
-        }
-        unset($invalidValues);
-
-        return $message;
     }
 
     /**
@@ -183,10 +145,7 @@ final class RespuestaTo extends AbstractStructBase
      */
     public function setListaEventosDoc(array $listaEventosDoc = [])
     {
-        // validation for constraint: array
-        if ('' !== ($listaEventosDocArrayErrorMessage = self::validateListaEventosDocForArrayConstraintsFromSetListaEventosDoc($listaEventosDoc))) {
-            throw new \InvalidArgumentException($listaEventosDocArrayErrorMessage, __LINE__);
-        }
+        $listaEventosDoc = \array_filter($listaEventosDoc, static fn ($item) => $item instanceof DteEventoDocTo);
 
         if (empty($listaEventosDoc)) {
             $this->listaEventosDoc = [];
@@ -206,10 +165,6 @@ final class RespuestaTo extends AbstractStructBase
      */
     public function addToListaEventosDoc(DteEventoDocTo $item)
     {
-        // validation for constraint: itemType
-        if (!$item instanceof \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\DteEventoDocTo) {
-            throw new \InvalidArgumentException(\sprintf('The listaEventosDoc property can only contain items of type \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\DteEventoDocTo, %s given', \is_object($item) ? \get_class($item) : (\is_array($item) ? \implode(', ', $item) : \gettype($item))), __LINE__);
-        }
         $this->listaEventosDoc[] = $item;
 
         return $this;
@@ -232,12 +187,8 @@ final class RespuestaTo extends AbstractStructBase
      *
      * @return \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\RespuestaTo
      */
-    public function setRutToken($rutToken = null)
+    public function setRutToken(?string $rutToken = null)
     {
-        // validation for constraint: string
-        if (null !== $rutToken && !\is_string($rutToken)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid value %s, please provide a string, %s given', \var_export($rutToken, true), \gettype($rutToken)), __LINE__);
-        }
         $this->rutToken = $rutToken;
 
         return $this;

@@ -8,10 +8,11 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl\AsyncSoap;
 
-use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\HttpBinding\SoapHttpBinding;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise\PromiseInterface;
+use Meng\AsyncSoap\SoapClientInterface;
+use Meng\Soap\HttpBinding\HttpBinding;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -21,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
-class AsyncSoapClient extends Guzzle\SoapClient implements SoapClientInterface
+class AsyncSoapClient implements SoapClientInterface
 {
     private PromiseInterface $httpBindingPromise;
 
@@ -40,17 +41,14 @@ class AsyncSoapClient extends Guzzle\SoapClient implements SoapClientInterface
         return $this->callAsync($name, $arguments);
     }
 
-    public function getInternalClient(): PromiseInterface
-    {
-        return $this->httpBindingPromise
-            ->then(
-                static function (SoapHttpBinding $binding) {
-                    $interpreter = $binding
-                        ->getInterpreter();
-
-                    return $interpreter->getSoapClient();
-                }
-            );
+    public function __soapCall(
+        $name,
+        array $arguments,
+        ?array $options = null,
+        $inputHeaders = null,
+        ?array &$outputHeaders = null
+    ) {
+        return $this->callAsync($name, $arguments, $options, $inputHeaders, $outputHeaders);
     }
 
     public function call(
@@ -74,7 +72,7 @@ class AsyncSoapClient extends Guzzle\SoapClient implements SoapClientInterface
     ) {
         return \GuzzleHttp\Promise\coroutine(
             function () use ($name, $arguments, $options, $inputHeaders, &$outputHeaders) {
-                /** @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\HttpBinding\HttpBinding $httpBinding */
+                /** @var \Meng\Soap\HttpBinding\HttpBinding $httpBinding */
                 $httpBinding = (yield $this->httpBindingPromise);
                 $request = $httpBinding->request($name, $arguments, $options, $inputHeaders);
                 $requestOptions = $options['request_options'] ?? [];
@@ -98,7 +96,7 @@ class AsyncSoapClient extends Guzzle\SoapClient implements SoapClientInterface
         );
     }
 
-    private function interpretResponse(SoapHttpBinding $httpBinding, ResponseInterface $response, string $name, &$outputHeaders)
+    private function interpretResponse(HttpBinding $httpBinding, ResponseInterface $response, string $name, &$outputHeaders)
     {
         try {
             return $httpBinding->response($response, $name, $outputHeaders);

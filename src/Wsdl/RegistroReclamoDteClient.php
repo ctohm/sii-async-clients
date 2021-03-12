@@ -10,6 +10,7 @@ namespace CTOhm\SiiAsyncClients\Wsdl;
 
 use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
+use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 
 /**
@@ -23,13 +24,15 @@ final class RegistroReclamoDteClient extends WsdlClientBase
     /**
      * @var string
      */
+    public const WSDL_SLUG = 'registro_reclamo_dte_service';
 
     /**
      * Minimal options.
      */
     protected static array $clientOptions = [
         WsdlClientBase::WSDL_URL => 'https://ws1.sii.cl/WSREGISTRORECLAMODTE/registroreclamodteservice?wsdl',
-        WsdlClientBase::LOCAL_FILE => 'wsdl/palena/registroreclamodteservice.jws',
+
+        WsdlClientBase::LOCAL_FILE => __DIR__ . '/../resources/wsdl/registroreclamodteservice.jws',
 
         WsdlClientBase::WSDL_CLASSMAP => [
             'respuestaTo' => \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\RespuestaTo::class,
@@ -42,13 +45,15 @@ final class RegistroReclamoDteClient extends WsdlClientBase
 
     public function __construct(array $clientOptions = [])
     {
+        self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
+        $this->mergedClientOptions['classmap'] = self::$clientOptions[WsdlClientBase::WSDL_CLASSMAP];
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
             $this->setToken($clientOptions['soapToken']);
-            $this->getAsyncSoapClient();
         }
+        //  kdump($this->getSoapClientClassName());
     }
 
     /**
@@ -63,15 +68,9 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function consultarDocDteCedible(...$args)
     {
-        try {
-            $this->setResult($this->consultarDocDteCedibleAsync(...$args));
-
-            return $this->getResult();
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+        return $this->consultarDocDteCedibleAsync(
+            ...$args
+        )->wait();
     }
 
     /**
@@ -89,39 +88,33 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function consultarDocDteCedibleAsync($rutEmisor, $dvEmisor, $tipoDoc, $folio): PromiseInterface
     {
-        try {
-            return $this->getAsyncSoapClient()->consultarDocDteCedible(
-                $rutEmisor,
-                $dvEmisor,
-                $tipoDoc,
-                $folio
-            )->then(function (
-                $consultarDocDteCedibleRespuesta
-            ) {
-                $consultarDocDteCedibleRespuesta->descResp = \str_replace(
-                    [
-                        'iï¿½n ',
-                        'rï¿½dito',
-                        'ï¿½a',
-                        ' sï¿½lo ',
-                    ],
-                    [
-                        'ión ',
-                        'rédito',
-                        'ía',
-                        ' sólo ',
-                    ],
-                    $consultarDocDteCedibleRespuesta->descResp
-                );
-                $this->setResult($consultarDocDteCedibleRespuesta);
+        return $this->getAsyncSoapClient()->consultarDocDteCedible(
+            $rutEmisor,
+            $dvEmisor,
+            $tipoDoc,
+            $folio
+        )->then(function (
+            $consultarDocDteCedibleRespuesta
+        ) {
+            $consultarDocDteCedibleRespuesta->descResp = \str_replace(
+                [
+                    'iï¿½n ',
+                    'rï¿½dito',
+                    'ï¿½a',
+                    ' sï¿½lo ',
+                ],
+                [
+                    'ión ',
+                    'rédito',
+                    'ía',
+                    ' sólo ',
+                ],
+                $consultarDocDteCedibleRespuesta->descResp
+            );
+            $this->setResult($consultarDocDteCedibleRespuesta);
 
-                return $consultarDocDteCedibleRespuesta;
-            });
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+            return $consultarDocDteCedibleRespuesta;
+        });
     }
 
     /**
@@ -176,20 +169,16 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function consultarFechaRecepcionSii($rutEmisor, $dvEmisor, $tipoDoc, $folio)
     {
-        try {
-            $this->setResult($this->getSoapClient()->__soapCall('consultarFechaRecepcionSii', [
-                $rutEmisor,
-                $dvEmisor,
-                $tipoDoc,
-                $folio,
-            ], [], [], $this->outputHeaders));
-
-            return $this->getResult();
-        } catch (\SoapFault $soapFault) {
-            $this->saveLastError(__METHOD__, $soapFault);
-
-            return false;
-        }
+        return $this->getAsyncSoapClient()->callAsync('consultarFechaRecepcionSii', [
+            $rutEmisor,
+            $dvEmisor,
+            $tipoDoc,
+            $folio,
+        ], [], [], $this->outputHeaders)->then(function ($result) {
+            return tap($result, fn ($result) => $this->setResult($result));
+        })->otherwise(function ($soapFault) {
+            return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
+        });
     }
 
     /**
@@ -200,23 +189,25 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      * @uses WsdlClientBase::saveLastError()
      * @uses WsdlClientBase::setResult()
      *
-     * @return false|string|WsRegistroReclamoDte\RespuestaTo
+     * @param mixed $rutEmisor
+     * @param mixed $dvEmisor
+     * @param mixed $tipoDoc
+     * @param mixed $folio
      */
-    public function listarEventosHistDoc(...$args)
+    public function listarEventosHistDoc($rutEmisor, $dvEmisor, $tipoDoc, $folio): PromiseInterface
     {
-        try {
-            $this->setResult($this->consultarDocDteCedibleAsync(...$args));
+        $result = $this->getSoapClient()->__soapCall('listarEventosHistDoc', [$rutEmisor, $dvEmisor, $tipoDoc, $folio], [], [], $this->outputHeaders);
+
+        return (new FulfilledPromise($result))->then(function ($result) {
+            $this->setResult($result);
+            kdump($result);
 
             return $this->getResult();
-        } catch (\SoapFault $soapFault) {
+        })->otherwise(function (\SoapFault $soapFault) {
             $this->saveLastError(__METHOD__, $soapFault);
 
             return false;
-        } catch (\Exception $e) {
-            dump($e->getMessage());
-
-            return false;
-        }
+        });
     }
 
     /**
@@ -240,9 +231,9 @@ final class RegistroReclamoDteClient extends WsdlClientBase
             $tipoDoc,
             $folio
         )->then(function ($result) {
-            $this->setResult($result);
-
-            return $result;
+            return tap($result, fn ($result) => $this->setResult($result));
+        })->otherwise(function ($soapFault) {
+            return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));
         });
     }
 
@@ -251,7 +242,7 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      *
      * @see AbstractSoapClientBase::getResult()
      *
-     * @return \CTOhm\SiiAsyncClients\Wsdl\WsRegistroReclamoDte\RespuestaTo|string
+     * @return null|string
      */
     public function getResult()
     {
