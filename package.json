@@ -7,7 +7,7 @@
   "scripts": {
     "psalm:unused": "yarn psalter --issues=UnusedMethod,PossiblyUnusedMethod,UnusedProperty,PossiblyUnusedProperty,UnusedVariable ",
     "psalm:undefined": "yarn psalter --issues=MissingReturnType,MissingClosureReturnType,InvalidReturnType,InvalidNullableReturnType,InvalidFalsableReturnType,MissingParamType,MissingPropertyType,MismatchingDocblockParamType,MismatchingDocblockReturnType ",
-    "test": "vendor/bin/pest",
+    "pest": "vendor/bin/pest",
     "psalter": "vendor/bin/psalm    --config=psalm.xml  --alter   --allow-backwards-incompatible-changes=false  --safe-types --dry-run",
     "psalm": "vendor/bin/psalm --config=psalm.xml --long-progress --threads=4 --show-info=false  ",
     "dev": "npm run development",
@@ -17,7 +17,8 @@
     "tail": "tail -f storage/logs/laravel*`date +%Y-%m-%d`.* storage/logs/kint.debug.txt storage/logs/laravel.debug.json storage/logs/laravel.emails.json | bunyan",
     "config:localhost": "make clean_env APP_ENV=local && php artisan config:list database.connections",
     "config:dev": "make clean_env APP_ENV=development && php artisan config:list database.connections",
-    "lint": "eslint --ext .js,.vue resources/js"
+    "lint": "eslint --ext .js,.vue resources/js",
+    "prepare": "husky install"
   },
   "husky": {
     "hooks": {
