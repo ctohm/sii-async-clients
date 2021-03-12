@@ -5,9 +5,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "psalm:unused":"yarn psalter --issues=UnusedMethod,PossiblyUnusedMethod,UnusedProperty,PossiblyUnusedProperty,UnusedVariable ",
-    "psalm:undefined":"yarn psalter --issues=MissingReturnType,MissingClosureReturnType,InvalidReturnType,InvalidNullableReturnType,InvalidFalsableReturnType,MissingParamType,MissingPropertyType,MismatchingDocblockParamType,MismatchingDocblockReturnType ",
-    "test":"vendor/bin/pest",
+    "psalm:unused": "yarn psalter --issues=UnusedMethod,PossiblyUnusedMethod,UnusedProperty,PossiblyUnusedProperty,UnusedVariable ",
+    "psalm:undefined": "yarn psalter --issues=MissingReturnType,MissingClosureReturnType,InvalidReturnType,InvalidNullableReturnType,InvalidFalsableReturnType,MissingParamType,MissingPropertyType,MismatchingDocblockParamType,MismatchingDocblockReturnType ",
+    "test": "vendor/bin/pest",
     "psalter": "vendor/bin/psalm    --config=psalm.xml  --alter   --allow-backwards-incompatible-changes=false  --safe-types --dry-run",
     "psalm": "vendor/bin/psalm --config=psalm.xml --long-progress --threads=4 --show-info=false  ",
     "dev": "npm run development",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "eslint": "^7.21.0",
+    "husky": "^5.1.3",
     "prettier": "^2.2.1"
   },
   "dependencies": {
