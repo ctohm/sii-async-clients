@@ -309,11 +309,11 @@ class SiiAuthClient
     protected static function getCertFiles(): array
     {
         if (!static::$certpaths) {
-            static::$tmp_file_cert = \fopen(storage_path('tmp/tmp_file_cert.pem'), 'wb');
+            static::$tmp_file_cert = \tmpfile(); //\fopen(storage_path('tmp/tmp_file_cert.pem'), 'wb');
             \fwrite(static::$tmp_file_cert, static::$certs['cert']);
             $tmp_file_cert_path = \stream_get_meta_data(static::$tmp_file_cert)['uri'];
 
-            static::$tmp_file_pkey = \fopen(storage_path('tmp/tmp_file_pkey.key'), 'wb');
+            static::$tmp_file_pkey = \tmpfile(); // \fopen(storage_path('tmp/tmp_file_pkey.key'), 'wb');
             \fwrite(static::$tmp_file_pkey, static::$certs['pkey']);
             $tmp_file_pkey_path = \stream_get_meta_data(static::$tmp_file_pkey)['uri'];
             static::$certpaths = [
@@ -321,8 +321,10 @@ class SiiAuthClient
                 'key' => $tmp_file_pkey_path,
             ];
 
+            self::$certpaths['ca'] = config('sii-clients.cacert_pemfile');
+
             if (\array_key_exists('extracerts', static::$certs)) {
-                static::$tmp_file_extracerts = \fopen(storage_path('tmp/tmp_file_extracerts.pem'), 'wb');
+                static::$tmp_file_extracerts = \tmpfile();
 
                 foreach (static::$certs['extracerts'] as $cacert) {
                     \fwrite(static::$tmp_file_extracerts, $cacert);
@@ -332,7 +334,7 @@ class SiiAuthClient
             }
         }
 
-        return static::$certpaths;
+        return self::$certpaths;
     }
 
     /**

@@ -36,7 +36,6 @@ it('Can retrieve testGetEstDte for a given DTE', function ($dte_id): void {
     $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
     $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
     $testGetEstDte = $soapClient->getEstadoDte($estDteArgs)->then(function ($estDteResult): void {
-        kdump($estDteResult);
         $this->assertArrayHasKey('estado', $estDteResult);
         $this->assertArrayHasKey('glosaEstado', $estDteResult);
         $this->assertArrayHasKey('errCode', $estDteResult);
@@ -75,12 +74,12 @@ it('Can retrieve testGetEstDteAv for a given DTE', function ($dte_id): void {
 
     $estDteArgs = new EstadoDteAvParameters($estDteAvArgs);
     $testGetEstDte = $soapClient->getEstadoDteAv($estDteArgs)->then(function ($estDteResult): void {
-        kdump($estDteResult);
         $this->assertArrayHasKey('estado', $estDteResult);
+        $this->assertArrayHasKey('recibido', $estDteResult);
         $this->assertArrayHasKey('glosa', $estDteResult);
-        $this->assertArrayHasKey('errCode', $estDteResult);
-        $this->assertArrayHasKey('glosaErr', $estDteResult);
-        $this->assertArrayHasKey('numAtencion', $estDteResult);
+        $this->assertArrayHasKey('trackid', $estDteResult);
+
+        $this->assertArrayHasKey('numatencion', $estDteResult);
     });
 
     $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);

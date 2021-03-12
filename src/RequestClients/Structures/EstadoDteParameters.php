@@ -59,7 +59,7 @@ class EstadoDteParameters extends EventosHistoricosParameters implements JsonSer
     /**
      * Undocumented function.
      *
-     * @param array{rutEmisor: string, tipoDoc: int, folio: int, siiToken: string} $requestParams
+     * @param array{rutEmisor:string,tipoDoc:int,folio:int,siiToken:string,montoTotal:int} $requestParams
      */
     public function __construct(array $requestParams)
     {

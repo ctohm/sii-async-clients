@@ -57,13 +57,8 @@ final class CrSeedClient extends WsdlClientBase
             $this->setResult($this->getSoapClient()->getSeed());
             $soapResultBody = $this->getResult();
             $this->logSoapResponse($soapResultBody, __METHOD__, $args ?? [], $loopOptions);
-            // Gets rid of all namespace definitions
-            // $xml_string = preg_replace('/xmlns[^=]*="[^"]*"/i', '', $soapResultBody);
 
-            // Gets rid of all namespace references
-            //$xml_string = preg_replace('/[a-zA-Z]+?:([a-zA-Z]+\s*[=>])/', '$1', $xml_string);
-
-            $xml = \is_string($soapResultBody) ? new \SimpleXMLElement($soapResultBody, \LIBXML_COMPACT) : $soapResultBody;
+            $xml = new \SimpleXMLElement($soapResultBody, \LIBXML_COMPACT);
 
             if (
                 false === $xml

@@ -8,20 +8,25 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
-use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
+use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAvAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * This class stands for Get ServiceType.
- *
+ * @template-extends QueryEstDteClient<QueryEstDteAvAsyncClient>
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 {
     public const WSDL_SLUG = 'query_est_dte_av';
-
+    /**
+     * Undocumented variable
+     * @psalm-var QueryEstDteClient<QueryEstDteAvAsyncClient>
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAvAsyncClient
+     */
+    protected static  $asyncSoapClient = null;
     /**
      *  Minimal options.
      *
@@ -36,7 +41,6 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 
     protected array $mergedClientOptions = [];
 
-    private static ?AsyncSoapClient $asyncSoapClient = null;
 
     public function __construct(array $clientOptions = [])
     {
@@ -94,7 +98,7 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
         $firmaDte,
         $token
     ): PromiseInterface {
-        return $this->getAsyncSoapClient()->getEstDteAv(
+        return $this->getAsyncSoapClient(QueryEstDteAvAsyncClient::class)->getEstDteAv(
             $rutEmpresa,
             $dvEmpresa,
             $rutReceptor,

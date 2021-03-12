@@ -1,1 +1,21 @@
--a .php_cs.cache
+/node_modules
+/storage/*.key
+/vendor
+.phpunit.result.cache
+npm-debug.log
+yarn-error.log
+.idea
+.DS_Store
+
+.vscode
+
+.phive
+.env.local
+tools/*
+.build/**/*
+.env.*
+
+*.code-workspace
+
+.php_cs.cache
+.env

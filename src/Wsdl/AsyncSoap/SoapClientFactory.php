@@ -22,10 +22,8 @@ use Psr\Http\Message\ResponseInterface;
  */
 class SoapClientFactory
 {
-    /**
-     * @var SoapInterpreter
-     */
-    private $interpreter;
+
+    private Interpreter $interpreter;
 
     /**
      * Create an instance of SoapClientInterface.
@@ -44,6 +42,7 @@ class SoapClientFactory
     public function create(ClientInterface $client, $wsdl, array $options = [])
     {
         if ($this->isHttpUrl($wsdl)) {
+            kdump('HTTPURL');
             $httpBindingPromise = $client->requestAsync('GET', $wsdl)->then(
                 static function (ResponseInterface $response) use ($options) {
                     $wsdl = $response->getBody()->__toString();

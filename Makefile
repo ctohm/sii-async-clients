@@ -101,7 +101,7 @@ endif
 		@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
 		@mkdir -p .build/phpcs && touch .build/phpcs/csfixer.cache ;\
 		echo -e $(executable) ;\
-		$(executable) fix --config=.php_cs.php --cache-file=.build/phpcs/csfixer.cache --format=$(reportformat)   --diff
+		$(executable) vendor/bin/php-cs-fixerfix --config=.php_cs.php --cache-file=.build/phpcs/csfixer.cache --format=$(reportformat)   --diff
 
 
 phpcs:
@@ -123,40 +123,10 @@ endif
 		$(eval package_name:=phpcbf)
 		@${MAKE} check_executable_or_exit_with_phive  executable=$(executable) package_name=$(package_name) --no-print-directory
 		@mkdir -p .build/phpcs && touch .build/phpcs/php-cs.cache ;\
-		tools/phpcbf  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cs.cache --report=$(reportformat) app/* tests/* config/*
-
-
-psalm:
-		$(eval executable:=vendor/bin/psalm)
-		$(eval package_name:=vimeo/psalm)
-		@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
-		@mkdir -p .build/psalm ;\
-		echo -e "Running:" ;\
-		echo -e "$(GREEN)$(executable)$(WHITE) --show-info=false --long-progress --threads=4 --config=psalm.xml ${fix_folder}"
-		@$(executable) --show-info=false --long-progress --threads=4 --config=psalm.xml ${fix_folder}
+		tools/phpcbf  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cs.cache --report=$(reportformat) src/* tests/*
 
 
 
-phpstan:
-		$(eval executable:=vendor/bin/phpstan)
-		$(eval package_name:=phpstan/phpstan)
-		@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
-		@mkdir -p .build/phpstan ;\
-		echo -e "Running:" ;\
-		echo -e "$(GREEN)vendor/bin/phpstan$(WHITE) analyse --memory-limit=2G   --configuration phpstan.neon "
-		@$(executable) analyse --memory-limit=2G   --configuration phpstan.neon
-
-phpstan_checkstyle:
-		@${MAKE} phpstan error-format=checkstyle >  temp/phpstan.checkstyle.xml ;\
-		cat temp/phpstan.checkstyle.xml | vendor/bin/cs2pr ;\
-		echo ""
-
-lint:
-		$(eval executable:=vendor/bin/parallel-lint )
-		$(eval package_name:=php-parallel-lint/php-parallel-lint )
-		@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
-		mkdir -p .build/parallel ;\
-		$(executable) --ignore-fails --exclude vendor  --exclude .build --exclude storage .
 
 all_checks: lint  phpcs  csfixer phpcbf psalm phpstan dependency_analysis
 fixers:  lint csfixer psalm phpstan phpcs dependency_analysis

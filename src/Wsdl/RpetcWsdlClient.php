@@ -8,21 +8,26 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
-use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
+use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Collection;
 
 /**
  * This class stands for Get ServiceType.
- *
+ * @extends WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient>
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class RpetcWsdlClient extends WsdlClientBase
 {
     public const WSDL_SLUG = 'ws_rpetc_consulta';
-
+    /**
+     * Undocumented variable
+     * @psalm-var WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient>
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient
+     */
+    protected static  $asyncSoapClient = null;
     /**
      * Minimal options.
      *
@@ -35,8 +40,6 @@ final class RpetcWsdlClient extends WsdlClientBase
     ];
 
     protected array $mergedClientOptions = [];
-
-    private static ?AsyncSoapClient $asyncSoapClient = null;
 
     public function __construct(array $clientOptions = [])
     {
@@ -73,7 +76,7 @@ final class RpetcWsdlClient extends WsdlClientBase
         $tipoDoc,
         $folioDoc/*, $idCesion*/
     ): PromiseInterface {
-        return $this->getAsyncSoapClient()->getEstCesion(
+        return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstCesion(
             $token,
             $rutEmisor,
             $dVEmisor,
@@ -101,7 +104,7 @@ final class RpetcWsdlClient extends WsdlClientBase
      * @param string $rutEmpresa
      * @param string $dVEmpresa
      *
-     * @return
+     * @return PromiseInterface
      */
     public function getEstCesionRelac(
         $token,
@@ -112,7 +115,7 @@ final class RpetcWsdlClient extends WsdlClientBase
         $rutEmpresa,
         $dVEmpresa
     ): PromiseInterface {
-        return $this->getAsyncSoapClient()->getEstCesionRelac(
+        return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstCesionRelac(
             $token,
             $rutEmisor,
             $dVEmisor,
@@ -144,7 +147,7 @@ final class RpetcWsdlClient extends WsdlClientBase
         $token,
         $trackId
     ) {
-        return $this->getAsyncSoapClient()->getEstEnvio($token, $trackId)
+        return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstEnvio($token, $trackId)
             ->then(function ($result) {
                 return tap($result, fn ($result) => $this->setResult($result));
             })

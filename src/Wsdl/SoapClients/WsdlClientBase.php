@@ -20,11 +20,13 @@ use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use WsdlToPhp\PackageBase\AbstractSoapClientBase;
+use Meng\AsyncSoap\SoapClientInterface;
+
 
 /**
  * This class stands for Get ServiceType.
- *
- * @internal
+ * @template T of \Meng\AsyncSoap\SoapClientInterface 
+ * @psalm-template T of \Meng\AsyncSoap\SoapClientInterface
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
 abstract class WsdlClientBase extends AbstractSoapClientBase
@@ -37,11 +39,50 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     protected array $mergedClientOptions = [];
 
     /**
+     * 
+     * @psalm-var T
+     * @var T
+     */
+    protected static  $asyncSoapClient = null;
+    /**
      * Undocumented variable.
      *
-     * @var AsyncSoapClient[]
+     * @var array<array-key,\Meng\AsyncSoap\SoapClientInterface>
      */
     protected static array $asyncSoapClientsArray = [];
+
+
+    /**
+     * @psalm-return T
+     * @return T
+     */
+    final public function getAsyncSoapClient(string $class = AsyncSoapClient::class): SoapClientInterface
+    {
+        $clientOptions = $this->mergedClientOptions;
+        $localWsdl = $clientOptions[self::LOCAL_FILE];
+
+
+        if (self::$asyncSoapClientsArray[$localWsdl] ?? null) {
+            return self::$asyncSoapClientsArray[$localWsdl];
+        }
+
+        if (!$soapToken = $this->getTokenIfNotPresent()) {
+            throw new Exception('No soapToken was passed to the constructor options and we couldnt retrieve a new one');
+        }
+
+        $clientOptions['cookies'] = CookieJar::fromArray(['TOKEN' => $soapToken], 'sii.cl');
+        $clientOptions['classmap'] = $clientOptions[self::WSDL_CLASSMAP];
+
+        $multiHandler = app(CurlMultiHandler::class);
+        $clientOptions['handler'] = HandlerStack::create($multiHandler);
+        $factory = new SoapClientFactory();
+        $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
+
+        self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $clientOptions);
+
+        return  self::$asyncSoapClientsArray[$localWsdl];
+    }
+
 
     final public function getTokenIfNotPresent(): string
     {
@@ -64,29 +105,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
         return \sprintf('Error al ejecutar consulta a webservice soap. %s', $e->getMessage());
     }
 
-    final public function getAsyncSoapClient(): AsyncSoapClient
-    {
-        $clientOptions = $this->mergedClientOptions;
-        $localWsdl = $clientOptions[self::LOCAL_FILE];
 
-        if (self::$asyncSoapClientsArray[$localWsdl] ?? null) {
-            return self::$asyncSoapClientsArray[$localWsdl];
-        }
-
-        if (!$soapToken = $this->getTokenIfNotPresent()) {
-            throw new Exception('No soapToken was passed to the constructor options and we couldnt retrieve a new one');
-        }
-
-        $factory = new SoapClientFactory();
-        $clientOptions['cookies'] = CookieJar::fromArray(['TOKEN' => $soapToken], 'sii.cl');
-        $multiHandler = app(CurlMultiHandler::class);
-        $clientOptions['handler'] = HandlerStack::create($multiHandler);
-        $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
-        $clientOptions['classmap'] = $clientOptions[self::WSDL_CLASSMAP];
-        self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $clientOptions);
-
-        return self::$asyncSoapClientsArray[$localWsdl];
-    }
 
     /**
      * Starts an attempt loop.

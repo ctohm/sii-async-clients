@@ -9,18 +9,25 @@ declare(strict_types=1);
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
 use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
+use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RegistroReclamoAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * This class stands for Listar ServiceType.
- *
+ * @template-extends WsdlClientBase<RegistroReclamoAsyncClient>
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class RegistroReclamoDteClient extends WsdlClientBase
 {
+    /**
+     * Undocumented variable
+     * @psalm-var  WsdlClientBase<RegistroReclamoAsyncClient>
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
+     */
+    protected static  $asyncSoapClient = null;
     /**
      * @var string
      */
@@ -41,7 +48,6 @@ final class RegistroReclamoDteClient extends WsdlClientBase
         ],
     ];
 
-    private static ?AsyncSoapClient $asyncSoapClient = null;
 
     public function __construct(array $clientOptions = [])
     {
@@ -88,7 +94,7 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function consultarDocDteCedibleAsync($rutEmisor, $dvEmisor, $tipoDoc, $folio): PromiseInterface
     {
-        return $this->getAsyncSoapClient()->consultarDocDteCedible(
+        return $this->getAsyncSoapClient(RegistroReclamoAsyncClient::class)->consultarDocDteCedible(
             $rutEmisor,
             $dvEmisor,
             $tipoDoc,
@@ -169,7 +175,7 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function consultarFechaRecepcionSii($rutEmisor, $dvEmisor, $tipoDoc, $folio)
     {
-        return $this->getAsyncSoapClient()->callAsync('consultarFechaRecepcionSii', [
+        return $this->getAsyncSoapClient(RegistroReclamoAsyncClient::class)->callAsync('consultarFechaRecepcionSii', [
             $rutEmisor,
             $dvEmisor,
             $tipoDoc,
@@ -225,7 +231,7 @@ final class RegistroReclamoDteClient extends WsdlClientBase
      */
     public function listarEventosHistDocAsync($rutEmisor, $dvEmisor, $tipoDoc, $folio): PromiseInterface
     {
-        return $this->getAsyncSoapClient()->listarEventosHistDoc(
+        return $this->getAsyncSoapClient(RegistroReclamoAsyncClient::class)->listarEventosHistDoc(
             $rutEmisor,
             $dvEmisor,
             $tipoDoc,

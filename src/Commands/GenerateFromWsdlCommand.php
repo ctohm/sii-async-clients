@@ -66,7 +66,8 @@ final class GenerateFromWsdlCommand extends Command
     public function handle(): void
     {
         $service = $this->argument('service');
-        $slug = \end(\explode('/', \parse_url('https://efactura.dgi.gub.uy:6470/ePrueba/ws_personaGetActEmpresarialPrueba?wsdl', \PHP_URL_PATH)));
+        $parsed_url = \explode('/', \parse_url($service, \PHP_URL_PATH));
+        $slug = \end($parsed_url);
 
         $destination = \sprintf('App\\Wsdl\\%s', $service);
         $namespace = $this->argument('namespace') ?? \sprintf('App\\Wsdl\\%s', $service);

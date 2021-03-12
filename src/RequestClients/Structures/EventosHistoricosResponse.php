@@ -119,7 +119,7 @@ class EventosHistoricosResponse implements JsonSerializable
             }
         } catch (\InvalidArgumentException $e) {
             // invalid events will log an error
-            Log::error($e);
+            Log::error($e->getMessage());
         }
 
         return $this;

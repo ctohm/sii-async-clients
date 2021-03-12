@@ -45,7 +45,7 @@ class EstadoCesionRelacionParameters extends EventosHistoricosParameters impleme
     /**
      * Undocumented function.
      *
-     * @param array{rutEmisor:string,tipoDoc:int,folio:int,siiToken:string,rutEmpresa:string,?dvEmpresa:string} $requestParams
+     * @param array{rutEmisor:string,tipoDoc:int,folio:int,siiToken:string,rutEmpresa:string,?dvEmpresa:string,?siiToken:string} $requestParams
      */
     public function __construct(array $requestParams)
     {

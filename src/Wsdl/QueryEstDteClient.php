@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
 use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
+use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Collection;
@@ -16,14 +17,20 @@ use Illuminate\Support\Str;
 
 /**
  * This class stands for Get ServiceType.
- *
+ * @template T2
+ * @template-extends WsdlClientBase<QueryEstDteAsyncClient>
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 class QueryEstDteClient extends WsdlClientBase
 {
     public const WSDL_SLUG = 'query_est_dte';
-
+    /**
+     * Undocumented variable
+     * @psalm-var  T2
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAsyncClient
+     */
+    protected static  $asyncSoapClient = null;
     /**
      *  Minimal options.
      *
@@ -37,7 +44,6 @@ class QueryEstDteClient extends WsdlClientBase
 
     protected array $mergedClientOptions = [];
 
-    private static ?AsyncSoapClient $asyncSoapClient = null;
 
     public function __construct(array $clientOptions = [])
     {
@@ -108,7 +114,7 @@ class QueryEstDteClient extends WsdlClientBase
         $montoDte,
         $token
     ): PromiseInterface {
-        return $this->getAsyncSoapClient()->getEstDte(
+        return $this->getAsyncSoapClient(QueryEstDteAsyncClient::class)->getEstDte(
             $rutConsultante,
             $dvConsultante,
             $rutCompania,

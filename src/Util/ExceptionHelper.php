@@ -234,10 +234,6 @@ final class ExceptionHelper
 
     /**
      * Translates and maybe interpolates error constants into meaningful error strings.
-     *
-     * @param int   $error_code
-     * @param array ...$args    The arguments
-     *
      * @return string
      */
     public static function get($error_code, ?array $args = null)
@@ -283,17 +279,13 @@ final class ExceptionHelper
             'code' => $e->getCode(),
             'file' => \str_replace(base_path(), '', $e->getFile()) . ':' . $e->getLine(),
         ];
-        $maxTraceLength = ($e instanceof XmlException || 'App\Exceptions\XmlException' === $data['class']) ? 1 : self::$maxTraceLength;
 
-        if ($e instanceof XmlException || \mb_strpos($class, 'XmlException')) {
-            return $data;
-        }
 
-        if (!$e instanceof XmlException && $includeStacktraces) {
+        if ($includeStacktraces) {
             $trace = $e->getTrace();
 
             foreach ($trace as $index => $frame) {
-                if ($index > $maxTraceLength) {
+                if ($index > self::$maxTraceLength) {
                     break;
                 }
 
@@ -318,7 +310,7 @@ final class ExceptionHelper
         $previous = $e->getPrevious();
 
         if ($previous && $previous instanceof Throwable) {
-            $data['previous'] = self::normalizeException($previous, $depth + 1, !($e instanceof XmlException));
+            $data['previous'] = self::normalizeException($previous, $depth + 1, true);
         }
 
         return \array_merge(['thrown_at' => \microtime(true)], $data);
@@ -378,9 +370,7 @@ final class ExceptionHelper
             return $normalized;
         }
 
-        if ($data instanceof XmlException) {
-            return self::normalizeException($data, 2, false);
-        }
+
 
         if ($data instanceof Exception || $data instanceof Throwable) {
             return self::normalizeException($data, $depth);
