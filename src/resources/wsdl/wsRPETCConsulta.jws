@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions targetNamespace="http://DefaultNamespace" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://DefaultNamespace" xmlns:intf="http://DefaultNamespace" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <message name="getVersionRequest">
+  </message>
+  <message name="getEstEnvioRequest">
+    <part name="Token" type="xsd:string"/>
+    <part name="TrackId" type="xsd:string"/>
+  </message>
+  <message name="getVersionPatchResponse">
+    <part name="getVersionPatchReturn" type="xsd:string"/>
+  </message>
+  <message name="getVersionMenorResponse">
+    <part name="getVersionMenorReturn" type="xsd:string"/>
+  </message>
+  <message name="getVersionPatchRequest">
+  </message>
+  <message name="getVersionResponse">
+    <part name="getVersionReturn" type="xsd:string"/>
+  </message>
+  <message name="getStateRequest">
+  </message>
+  <message name="getEstCesionRelacResponse">
+    <part name="getEstCesionRelacReturn" type="xsd:string"/>
+  </message>
+  <message name="getVersionMayorRequest">
+  </message>
+  <message name="getEstCesionResponse">
+    <part name="getEstCesionReturn" type="xsd:string"/>
+  </message>
+  <message name="getStateResponse">
+    <part name="getStateReturn" type="xsd:string"/>
+  </message>
+  <message name="getEstCesionRelacRequest">
+    <part name="Token" type="xsd:string"/>
+    <part name="RutEmisor" type="xsd:string"/>
+    <part name="DVEmisor" type="xsd:string"/>
+    <part name="TipoDoc" type="xsd:string"/>
+    <part name="FolioDoc" type="xsd:string"/>
+    <part name="RutEmpresa" type="xsd:string"/>
+    <part name="DVEmpresa" type="xsd:string"/>
+  </message>
+  <message name="getVersionMayorResponse">
+    <part name="getVersionMayorReturn" type="xsd:string"/>
+  </message>
+  <message name="getVersionMenorRequest">
+  </message>
+  <message name="getEstEnvioResponse">
+    <part name="getEstEnvioReturn" type="xsd:string"/>
+  </message>
+  <message name="getEstCesionRequest">
+    <part name="Token" type="xsd:string"/>
+    <part name="RutEmisor" type="xsd:string"/>
+    <part name="DVEmisor" type="xsd:string"/>
+    <part name="TipoDoc" type="xsd:string"/>
+    <part name="FolioDoc" type="xsd:string"/>
+    <part name="IdCesion" type="xsd:string"/>
+  </message>
+  <portType name="wsRPETCConsulta">
+    <operation name="getVersionMayor">
+      <input message="impl:getVersionMayorRequest" name="getVersionMayorRequest"/>
+      <output message="impl:getVersionMayorResponse" name="getVersionMayorResponse"/>
+    </operation>
+    <operation name="getVersionMenor">
+      <input message="impl:getVersionMenorRequest" name="getVersionMenorRequest"/>
+      <output message="impl:getVersionMenorResponse" name="getVersionMenorResponse"/>
+    </operation>
+    <operation name="getVersionPatch">
+      <input message="impl:getVersionPatchRequest" name="getVersionPatchRequest"/>
+      <output message="impl:getVersionPatchResponse" name="getVersionPatchResponse"/>
+    </operation>
+    <operation name="getVersion">
+      <input message="impl:getVersionRequest" name="getVersionRequest"/>
+      <output message="impl:getVersionResponse" name="getVersionResponse"/>
+    </operation>
+    <operation name="getEstEnvio" parameterOrder="Token TrackId">
+      <input message="impl:getEstEnvioRequest" name="getEstEnvioRequest"/>
+      <output message="impl:getEstEnvioResponse" name="getEstEnvioResponse"/>
+    </operation>
+    <operation name="getEstCesion" parameterOrder="Token RutEmisor DVEmisor TipoDoc FolioDoc IdCesion">
+      <input message="impl:getEstCesionRequest" name="getEstCesionRequest"/>
+      <output message="impl:getEstCesionResponse" name="getEstCesionResponse"/>
+    </operation>
+    <operation name="getEstCesionRelac" parameterOrder="Token RutEmisor DVEmisor TipoDoc FolioDoc RutEmpresa DVEmpresa">
+      <input message="impl:getEstCesionRelacRequest" name="getEstCesionRelacRequest"/>
+      <output message="impl:getEstCesionRelacResponse" name="getEstCesionRelacResponse"/>
+    </operation>
+    <operation name="getState">
+      <input message="impl:getStateRequest" name="getStateRequest"/>
+      <output message="impl:getStateResponse" name="getStateResponse"/>
+    </operation>
+  </portType>
+  <binding name="wsRPETCConsultaSoapBinding" type="impl:wsRPETCConsulta">
+    <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="getVersionMayor">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getVersionMayorRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getVersionMayorResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getVersionMenor">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getVersionMenorRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getVersionMenorResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getVersionPatch">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getVersionPatchRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getVersionPatchResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getVersion">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getVersionRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getVersionResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getEstEnvio">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getEstEnvioRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getEstEnvioResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getEstCesion">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getEstCesionRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getEstCesionResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getEstCesionRelac">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getEstCesionRelacRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getEstCesionRelacResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+    <operation name="getState">
+      <wsdlsoap:operation soapAction=""/>
+      <input name="getStateRequest">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </input>
+      <output name="getStateResponse">
+        <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="wsRPETCConsultaService">
+    <port binding="impl:wsRPETCConsultaSoapBinding" name="wsRPETCConsulta">
+      <wsdlsoap:address location="https://palena.sii.cl/DTEWS/services/wsRPETCConsulta"/>
+    </port>
+  </service>
+</definitions>
