@@ -6,7 +6,7 @@
 
 use Ergebnis\PhpCsFixer\Config;
 
-\define('PROJECT_ROOT', dirname(__DIR__, 4));
+
 $json_path = __DIR__ . '/composer.json';
 $composerinfo = \json_decode(\file_get_contents($json_path));
 
@@ -50,6 +50,6 @@ $config->getFinder()
 	->ignoreDotFiles(true)
 	->ignoreVCS(true);
 
-$config->setCacheFile(PROJECT_ROOT . '/.build/phpcs/csfixer2.cache');
+$config->setCacheFile(__DIR__ . '/.build/csfixer.cache');
 
 return $config;
