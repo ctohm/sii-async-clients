@@ -22,7 +22,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class SoapClientFactory
 {
-
     private Interpreter $interpreter;
 
     /**

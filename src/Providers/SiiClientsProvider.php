@@ -29,7 +29,7 @@ final class SiiClientsProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/sii-clients.php', 'sii-clients');
-        \ini_set('soap.wsdl_cache_enabled', (string) (config('sii-clients.cache_policy') ? WSDL_CACHE_BOTH : 0));
+        \ini_set('soap.wsdl_cache_enabled', (string) (config('sii-clients.cache_policy') ? \WSDL_CACHE_BOTH : 0));
         \ini_set('soap.wsdl_cache_dir', (string) (config('sii-clients.cache_folder')));
         \ini_set('soap.wsdl_cache', (string) (config('sii-clients.cache_policy')));
         \ini_set('soap.wsdl_cache_limit', (string) (config('sii-clients.cache_policy') ? 10 : 0));
@@ -48,10 +48,7 @@ final class SiiClientsProvider extends ServiceProvider
             'command.wsdl2php:generate',
         ]);
 
-
-
-        $this->app->singleton(SoapProvider::class, function ($app, ?array $args = null): SoapProvider {
-
+        $this->app->singleton(SoapProvider::class, static function ($app, ?array $args = null): SoapProvider {
             $siiSignature = self::verifySiiSignatureParameter($args);
 
             $clientOptions = \array_merge([

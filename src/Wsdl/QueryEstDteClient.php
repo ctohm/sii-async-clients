@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
-use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
 use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -17,20 +16,26 @@ use Illuminate\Support\Str;
 
 /**
  * This class stands for Get ServiceType.
+ *
  * @template T2
  * @template-extends WsdlClientBase<QueryEstDteAsyncClient>
+ *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 class QueryEstDteClient extends WsdlClientBase
 {
     public const WSDL_SLUG = 'query_est_dte';
+
     /**
-     * Undocumented variable
+     * Undocumented variable.
+     *
      * @psalm-var  T2
+     *
      * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAsyncClient
      */
-    protected static  $asyncSoapClient = null;
+    protected static $asyncSoapClient = null;
+
     /**
      *  Minimal options.
      *
@@ -44,16 +49,13 @@ class QueryEstDteClient extends WsdlClientBase
 
     protected array $mergedClientOptions = [];
 
-
     public function __construct(array $clientOptions = [])
     {
-
         self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
-
             $this->setToken($clientOptions['soapToken']);
         }
     }

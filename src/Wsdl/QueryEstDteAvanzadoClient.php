@@ -14,19 +14,25 @@ use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * This class stands for Get ServiceType.
+ *
  * @template-extends QueryEstDteClient<QueryEstDteAvAsyncClient>
+ *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 {
     public const WSDL_SLUG = 'query_est_dte_av';
+
     /**
-     * Undocumented variable
+     * Undocumented variable.
+     *
      * @psalm-var QueryEstDteClient<QueryEstDteAvAsyncClient>
+     *
      * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAvAsyncClient
      */
-    protected static  $asyncSoapClient = null;
+    protected static $asyncSoapClient = null;
+
     /**
      *  Minimal options.
      *
@@ -40,7 +46,6 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
     ];
 
     protected array $mergedClientOptions = [];
-
 
     public function __construct(array $clientOptions = [])
     {

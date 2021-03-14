@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl\AsyncSoap;
 
-
 /**
  * @method void __setCookie($name, $value)
  * @method object getEstDte( $rutConsultante,$dvConsultante,$rutCompania,$dvCompania,$rutReceptor,$dvReceptor,$tipoDte,$folioDte,$fechaEmisionDte,$montoDte,$token)

@@ -234,6 +234,9 @@ final class ExceptionHelper
 
     /**
      * Translates and maybe interpolates error constants into meaningful error strings.
+     *
+     * @param mixed $error_code
+     *
      * @return string
      */
     public static function get($error_code, ?array $args = null)
@@ -279,7 +282,6 @@ final class ExceptionHelper
             'code' => $e->getCode(),
             'file' => \str_replace(base_path(), '', $e->getFile()) . ':' . $e->getLine(),
         ];
-
 
         if ($includeStacktraces) {
             $trace = $e->getTrace();
@@ -369,8 +371,6 @@ final class ExceptionHelper
 
             return $normalized;
         }
-
-
 
         if ($data instanceof Exception || $data instanceof Throwable) {
             return self::normalizeException($data, $depth);

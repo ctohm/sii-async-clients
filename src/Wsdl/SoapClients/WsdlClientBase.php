@@ -18,14 +18,14 @@ use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Facades\Log;
+use Meng\AsyncSoap\SoapClientInterface;
 use Throwable;
 use WsdlToPhp\PackageBase\AbstractSoapClientBase;
-use Meng\AsyncSoap\SoapClientInterface;
-
 
 /**
  * This class stands for Get ServiceType.
- * @template T of \Meng\AsyncSoap\SoapClientInterface 
+ *
+ * @template T of \Meng\AsyncSoap\SoapClientInterface
  * @psalm-template T of \Meng\AsyncSoap\SoapClientInterface
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
@@ -39,11 +39,12 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     protected array $mergedClientOptions = [];
 
     /**
-     * 
      * @psalm-var T
+     *
      * @var T
      */
-    protected static  $asyncSoapClient = null;
+    protected static $asyncSoapClient = null;
+
     /**
      * Undocumented variable.
      *
@@ -51,16 +52,15 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
      */
     protected static array $asyncSoapClientsArray = [];
 
-
     /**
      * @psalm-return T
+     *
      * @return T
      */
     final public function getAsyncSoapClient(string $class = AsyncSoapClient::class): SoapClientInterface
     {
         $clientOptions = $this->mergedClientOptions;
         $localWsdl = $clientOptions[self::LOCAL_FILE];
-
 
         if (self::$asyncSoapClientsArray[$localWsdl] ?? null) {
             return self::$asyncSoapClientsArray[$localWsdl];
@@ -73,6 +73,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
         $clientOptions['classmap'] = $clientOptions[self::WSDL_CLASSMAP];
 
         $factory = new SoapClientFactory();
+
         if ($clientOptions['restClient'] ?? null) {
             $clientGuzzle = $clientOptions['restClient']->getClient();
         } else {
@@ -82,8 +83,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
             $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
         }
 
-
-        $soapOptions = array_merge([
+        $soapOptions = \array_merge([
             'cache_wsdl' => config('sii.cache_policy'), //\WSDL_CACHE_NONE, //  \WSDL_CACHE_DISK,
             'trace' => true,
             'exceptions' => true,
@@ -92,9 +92,9 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
 
         self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $soapOptions);
         self::$asyncSoapClientsArray[$localWsdl]->__setCookie('TOKEN', $soapToken);
-        return  self::$asyncSoapClientsArray[$localWsdl];
-    }
 
+        return self::$asyncSoapClientsArray[$localWsdl];
+    }
 
     final public function getTokenIfNotPresent(): string
     {
@@ -116,8 +116,6 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     {
         return \sprintf('Error al ejecutar consulta a webservice soap. %s', $e->getMessage());
     }
-
-
 
     /**
      * Starts an attempt loop.

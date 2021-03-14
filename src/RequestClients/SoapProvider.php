@@ -212,7 +212,6 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         $siiSignature = $siiSignature ?? self::$siiSignature;
         self::$soapToken = self::$soapToken ?? self::getTokenGetterClientInstance(self::$defaultClientOptions)->getCachedOrRenewedToken($siiSignature, self::$defaultClientOptions);
 
-
         $restClientOptions = ['cookies' => CookieJar::fromArray(['TOKEN' => self::$soapToken], 'sii.cl')];
         self::$defaultClientOptions['restClient'] = new RestClient($siiSignature, $restClientOptions);
 

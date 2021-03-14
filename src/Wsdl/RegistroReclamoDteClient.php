@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl;
 
-use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient;
 use CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RegistroReclamoAsyncClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\FulfilledPromise;
@@ -16,22 +15,27 @@ use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * This class stands for Listar ServiceType.
+ *
  * @template-extends WsdlClientBase<RegistroReclamoAsyncClient>
+ *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class RegistroReclamoDteClient extends WsdlClientBase
 {
     /**
-     * Undocumented variable
-     * @psalm-var  WsdlClientBase<RegistroReclamoAsyncClient>
-     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
-     */
-    protected static  $asyncSoapClient = null;
-    /**
      * @var string
      */
     public const WSDL_SLUG = 'registro_reclamo_dte_service';
+
+    /**
+     * Undocumented variable.
+     *
+     * @psalm-var  WsdlClientBase<RegistroReclamoAsyncClient>
+     *
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
+     */
+    protected static $asyncSoapClient = null;
 
     /**
      * Minimal options.
@@ -48,7 +52,6 @@ final class RegistroReclamoDteClient extends WsdlClientBase
         ],
     ];
 
-
     public function __construct(array $clientOptions = [])
     {
         self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
@@ -57,7 +60,6 @@ final class RegistroReclamoDteClient extends WsdlClientBase
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
-
             $this->setToken($clientOptions['soapToken']);
         }
         //  kdump($this->getSoapClientClassName());

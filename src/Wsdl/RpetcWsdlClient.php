@@ -15,19 +15,25 @@ use Illuminate\Support\Collection;
 
 /**
  * This class stands for Get ServiceType.
+ *
  * @extends WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient>
+ *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */
 final class RpetcWsdlClient extends WsdlClientBase
 {
     public const WSDL_SLUG = 'ws_rpetc_consulta';
+
     /**
-     * Undocumented variable
+     * Undocumented variable.
+     *
      * @psalm-var WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient>
+     *
      * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient
      */
-    protected static  $asyncSoapClient = null;
+    protected static $asyncSoapClient = null;
+
     /**
      * Minimal options.
      *
@@ -104,8 +110,6 @@ final class RpetcWsdlClient extends WsdlClientBase
      * @param string $folioDoc
      * @param string $rutEmpresa
      * @param string $dVEmpresa
-     *
-     * @return PromiseInterface
      */
     public function getEstCesionRelac(
         $token,
@@ -116,7 +120,6 @@ final class RpetcWsdlClient extends WsdlClientBase
         $rutEmpresa,
         $dVEmpresa
     ): PromiseInterface {
-
         return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstCesionRelac(
             $token,
             $rutEmisor,

@@ -66,7 +66,7 @@ final class TokenGetterClient extends WsdlClientBase
         if (Cache::has('soapToken')) {
             $soapToken = Cache::get('soapToken');
 
-            // kdump([__CLASS__ => \sprintf('Using cached token %s', $soapToken)]);
+        // kdump([__CLASS__ => \sprintf('Using cached token %s', $soapToken)]);
         } else {
             $soapToken = Cache::remember('soapToken', 300, function () use ($siiSignature, $loopOptions) {
                 $loopOptions = \array_merge(

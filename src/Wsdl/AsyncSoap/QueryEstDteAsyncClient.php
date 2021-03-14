@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\Wsdl\AsyncSoap;
 
-
 /**
  * @method void __setCookie($name, $value)
  * @method object getEstDte( $rutConsultante,$dvConsultante,$rutCompania,$dvCompania,$rutReceptor,$dvReceptor,$tipoDte,$folioDte,$fechaEmisionDte,$montoDte,$token)
@@ -16,6 +15,6 @@ namespace CTOhm\SiiAsyncClients\Wsdl\AsyncSoap;
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
-class QueryEstDteAsyncClient extends  AsyncSoapClient
+class QueryEstDteAsyncClient extends AsyncSoapClient
 {
 }
