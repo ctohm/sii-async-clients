@@ -57,6 +57,7 @@ final class RegistroReclamoDteClient extends WsdlClientBase
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
+
             $this->setToken($clientOptions['soapToken']);
         }
         //  kdump($this->getSoapClientClassName());

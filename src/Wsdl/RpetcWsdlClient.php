@@ -50,6 +50,7 @@ final class RpetcWsdlClient extends WsdlClientBase
 
         if ($clientOptions['soapToken'] ?? null) {
             $clientOptions['classmap'] = self::$clientOptions[WsdlClientBase::WSDL_CLASSMAP];
+
             $this->setToken($clientOptions['soapToken']);
         }
     }
@@ -115,6 +116,7 @@ final class RpetcWsdlClient extends WsdlClientBase
         $rutEmpresa,
         $dVEmpresa
     ): PromiseInterface {
+
         return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstCesionRelac(
             $token,
             $rutEmisor,

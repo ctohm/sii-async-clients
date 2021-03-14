@@ -17,13 +17,13 @@ use JsonSerializable;
  *
  * @property string $dvEmisor
  * @property string $dvReceptor
+ * @property string $rutToken
  * @property string $dvToken
  * @property string $firmaDte
  * @property string $folio
  * @property int $montoTotal
  * @property string $rutEmisor
  * @property string $rutReceptor
- * @property string $rutToken
  * @property string $siiToken
  * @property string $tipoDoc
  * @property string $transaction_id

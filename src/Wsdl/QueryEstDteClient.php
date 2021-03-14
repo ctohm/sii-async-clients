@@ -47,11 +47,13 @@ class QueryEstDteClient extends WsdlClientBase
 
     public function __construct(array $clientOptions = [])
     {
+
         self::$clientOptions[WsdlClientBase::LOCAL_FILE] = config(\sprintf('sii-clients.%s', self::WSDL_SLUG), self::$clientOptions[WsdlClientBase::LOCAL_FILE]);
         $this->mergedClientOptions = \array_merge(self::$clientOptions, $clientOptions);
         parent::__construct($this->mergedClientOptions);
 
         if ($clientOptions['soapToken'] ?? null) {
+
             $this->setToken($clientOptions['soapToken']);
         }
     }

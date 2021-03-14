@@ -17,6 +17,7 @@ use CTOhm\SiiAsyncClients\Wsdl\RegistroReclamoDteClient;
 use CTOhm\SiiAsyncClients\Wsdl\RpetcWsdlClient;
 use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use CTOhm\SiiAsyncClients\Wsdl\TokenGetterClient;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Facades\Log;
@@ -88,7 +89,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
 
         $startTime = \microtime(true);
 
-        return $this->getRegistroReclamoDteClientInstance()
+        return $this->getRegistroReclamoDteClientInstance(self::$defaultClientOptions)
             ->consultarDocDteCedibleAsync(...\array_values($listarEventosHistDocParams))
             ->then(static function ($result) {
                 //kdump(['method' => 'consultarDocDteCedibleAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                    ]);
@@ -118,7 +119,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
 
         $startTime = \microtime(true);
 
-        return $this->getRegistroReclamoDteClientInstance()->listarEventosHistDocAsync(
+        return $this->getRegistroReclamoDteClientInstance(self::$defaultClientOptions)->listarEventosHistDocAsync(
             ...\array_values($listarEventosHistDocParams)
         )->then(static function ($result) {
             //kdump(['method' => 'listarEventosHistDocAsync','startTime' => $startTime,'compoetedTime' => microtime(true)                ]);
@@ -143,7 +144,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
 
         $startTime = \microtime(true);
 
-        return $this->getQueryEstDteClientInstance()->getEstDte(...$soapMethodParams)->otherwise(static function ($e) {
+        return $this->getQueryEstDteClientInstance(self::$defaultClientOptions)->getEstDte(...$soapMethodParams)->otherwise(static function ($e) {
             kdump(ExceptionHelper::normalizeException($e));
 
             return new FulfilledPromise(['error' => $e->getMessage()]);
@@ -161,7 +162,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
 
         $startTime = \microtime(true);
 
-        return $this->getQueryEstDteAvanzadoClientInstance()
+        return $this->getQueryEstDteAvanzadoClientInstance(self::$defaultClientOptions)
             ->getEstDteAvAsync(...$soapMethodParams)
             ->otherwise(static function ($e) {
                 dump(ExceptionHelper::normalizeException($e));
@@ -174,7 +175,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
     public function getEstadoCesion(
         Structures\EstadoCesionParameters $estadoCesionParameters
     ): PromiseInterface {
-        return $this->getRpetcWsdlClientInstance()->getEstCesion(
+        return $this->getRpetcWsdlClientInstance(self::$defaultClientOptions)->getEstCesion(
             ...\array_values($estadoCesionParameters->jsonSerialize())
         )
             ->otherwise(static function ($e) {
@@ -190,7 +191,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
     ): PromiseInterface {
         $startTime = \microtime(true);
 
-        return $this->getRpetcWsdlClientInstance()->getEstCesionRelac(
+        return $this->getRpetcWsdlClientInstance(self::$defaultClientOptions)->getEstCesionRelac(
             ...\array_values($estadoCesionRelacionParameters->jsonSerialize())
         )
             ->otherwise(static function ($e) {
@@ -209,7 +210,11 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
     public static function getToken(?SiiSignatureInterface $siiSignature = null)
     {
         $siiSignature = $siiSignature ?? self::$siiSignature;
-        self::$soapToken = self::$soapToken ?? self::getTokenGetterClientInstance()->getCachedOrRenewedToken($siiSignature, self::$defaultClientOptions);
+        self::$soapToken = self::$soapToken ?? self::getTokenGetterClientInstance(self::$defaultClientOptions)->getCachedOrRenewedToken($siiSignature, self::$defaultClientOptions);
+
+
+        $restClientOptions = ['cookies' => CookieJar::fromArray(['TOKEN' => self::$soapToken], 'sii.cl')];
+        self::$defaultClientOptions['restClient'] = new RestClient($siiSignature, $restClientOptions);
 
         return self::$soapToken;
     }

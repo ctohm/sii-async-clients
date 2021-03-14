@@ -70,16 +70,28 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
             throw new Exception('No soapToken was passed to the constructor options and we couldnt retrieve a new one');
         }
 
-        $clientOptions['cookies'] = CookieJar::fromArray(['TOKEN' => $soapToken], 'sii.cl');
         $clientOptions['classmap'] = $clientOptions[self::WSDL_CLASSMAP];
 
-        $multiHandler = app(CurlMultiHandler::class);
-        $clientOptions['handler'] = HandlerStack::create($multiHandler);
         $factory = new SoapClientFactory();
-        $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
+        if ($clientOptions['restClient'] ?? null) {
+            $clientGuzzle = $clientOptions['restClient']->getClient();
+        } else {
+            $clientOptions['cookies'] = CookieJar::fromArray(['TOKEN' => $soapToken], 'sii.cl');
+            $multiHandler = app(CurlMultiHandler::class);
+            $clientOptions['handler'] = HandlerStack::create($multiHandler);
+            $clientGuzzle = new Client(\array_merge(['base_url' => $clientOptions[self::WSDL_URL]], $clientOptions));
+        }
 
-        self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $clientOptions);
 
+        $soapOptions = array_merge([
+            'cache_wsdl' => config('sii.cache_policy'), //\WSDL_CACHE_NONE, //  \WSDL_CACHE_DISK,
+            'trace' => true,
+            'exceptions' => true,
+            'keep_alive' => false,
+        ], $clientOptions);
+
+        self::$asyncSoapClientsArray[$localWsdl] = $factory->create($clientGuzzle, $localWsdl, $soapOptions);
+        self::$asyncSoapClientsArray[$localWsdl]->__setCookie('TOKEN', $soapToken);
         return  self::$asyncSoapClientsArray[$localWsdl];
     }
 
