@@ -10,6 +10,8 @@ namespace CTOhm\SiiAsyncClients\RequestClients;
 
 use Carbon\Carbon;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
+use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
+use CTOhm\SiiAsyncClients\Util\Misc;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Collection;
@@ -282,7 +284,65 @@ class RpetcClient extends RestClient
             return $e;
         }
     }
+    /**
+     * Downloads an aec.
+     *
+     * @param string  $rut_empresa   The rut empresa
+     * @param string  $id_documento  The identifier documento
+     *
+     * @return array
+     */
+    public function getDetalleCesionRTC(string $rut_empresa, string $id_documento)
+    {
+        if (!$representacion = $this->representar($rut_empresa)) {
+            return null;
+        }
 
+        [
+            $rutEmisorConDV, $tipo_doc, $folio
+        ] = \explode('_', $id_documento);
+
+        try {
+            [
+                $rut_emisor, $dv_emisor
+            ] = Misc::validaRut($rutEmisorConDV);
+
+            $dte_url = 'RTCConsulta.cgi';
+            $response = $this->sendSiiRequest(
+                'POST',
+                self::getUrl($dte_url, self::$common_uri),
+                [
+                    'headers' => ['referer' => 'https://palena.sii.cl/rtc/RTC/RTCConsultas.html'],
+                    //'debug'       => true,
+                    'form_params' => [
+                        'rut_emisor' => $rut_emisor,
+                        'dv_emisor' => $dv_emisor,
+                        'tipo_docto' => $tipo_doc,
+                        'folio' => $folio,
+                        'clave' => '',
+                        'botonxml' => 'xml',
+                    ],
+                ]
+                //true
+            );
+
+            $detalleConsulta = $response->getBody()->getContents();
+
+            [
+                $tablaContenidoHTML, $infoDetalle
+            ] = $this->parseDetalleHtml($detalleConsulta);
+
+            $this->clearRepresentacion();
+
+            return $infoDetalle ?? [];
+        } catch (\Exception $e) {
+            $this->clearRepresentacion();
+
+
+            return ['error' => $e->getMessage()];
+            //self::dumpHistory();
+        }
+    }
     /**
      * @return (mixed|null|string)[]
      *
@@ -331,7 +391,7 @@ class RpetcClient extends RestClient
             });
 
             $infoDetalle = $items->reduce(static function ($accum, $item) {
-                $accum[$item['title']] = $item['content'];
+                $accum[Str::slug($item['title'], '_')] = $item['content'];
 
                 return $accum;
             }, []);

@@ -69,3 +69,21 @@ it('Can retrieve getEstadoCesionRelacion for a given DTE', function ($dte_id): v
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
 })->with(['76986660-4_34_95', '76986660-4_34_106']);
+it('Can retrieve AEC getEstadoEnvio from track_id', function ($track_id): void {
+
+    /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
+    $soapClient = $this->soapClient;
+    $siiToken = $this->siiToken;
+
+
+    $promise = $soapClient->getEstEnvio($siiToken, $track_id)->then(function ($result) use ($track_id): void {
+        $this->assertArrayHasKey('estado', $result);
+        $this->assertArrayHasKey('trackid', $result);
+        $this->assertArrayHasKey('desc_estado', $result);
+        $this->assertArrayHasKey('estado_envio', $result);
+        expect($result['trackid'])->toEqual($track_id);
+    });
+
+    $this->assertInstanceOf(PromiseInterface::class, $promise);
+    $promise->wait();
+})->with(['5131325004']);

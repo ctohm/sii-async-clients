@@ -42,7 +42,7 @@ class EventosHistoricosParameters implements Arrayable, JsonSerializable
 
     public string $dte_id;
 
-    public string $fechaEmision;
+    public   $fechaEmision;
 
     /**
      * Undocumented function.

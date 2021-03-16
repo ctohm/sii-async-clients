@@ -44,7 +44,7 @@ class EstadoCesionParameters extends EventosHistoricosParameters implements Arra
 
     public string $dte_id;
 
-    public string $fechaEmision;
+    public   $fechaEmision;
 
     public string $rutReceptor;
 

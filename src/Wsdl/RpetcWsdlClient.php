@@ -146,15 +146,15 @@ final class RpetcWsdlClient extends WsdlClientBase
      * @param string $token
      * @param string $trackId
      *
-     * @return false|string
      */
     public function getEstEnvio(
         $token,
         $trackId
-    ) {
+    ): PromiseInterface {
         return $this->getAsyncSoapClient(RpetcWsdlAsyncClient::class)->getEstEnvio($token, $trackId)
             ->then(function ($result) {
-                return tap($result, fn ($result) => $this->setResult($result));
+
+                return tap($this->parseConsultaRTC($result), fn ($result) => $this->setResult($result));
             })
             ->otherwise(function ($soapFault) {
                 return tap(false, fn () => $this->saveLastError('getEstDte', $soapFault));

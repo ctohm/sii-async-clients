@@ -46,7 +46,7 @@ class EstadoDteParameters extends EventosHistoricosParameters implements JsonSer
 
     public string $dte_id;
 
-    public string $fechaEmision;
+    public   $fechaEmision;
 
     public string $rutReceptor;
 
