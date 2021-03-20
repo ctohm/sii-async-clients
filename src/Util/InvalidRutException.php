@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DBThor Cesion 1.11.0
+ * CTOhm - SII Async Clients
  */
 
 namespace CTOhm\SiiAsyncClients\Util;
@@ -12,8 +12,6 @@ class InvalidRutException extends Exception
 {
     /**
      * Report the exception.
-     *
-     * @return void
      */
     public function report(): void
     {
@@ -23,7 +21,8 @@ class InvalidRutException extends Exception
     /**
      * Render the exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function render(

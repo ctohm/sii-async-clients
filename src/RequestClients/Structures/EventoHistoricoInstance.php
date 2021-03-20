@@ -45,7 +45,7 @@ class EventoHistoricoInstance implements JsonSerializable
             }
         }
         // rutResponsable is the concatenation of rutResponsable-rutResponsable if rutResponsable is present, or rutResponsable otherwise
-        $this->rutResponsable = strval(($eventArray['dvResponsable'] ?? null) ?
+        $this->rutResponsable = (string) (($eventArray['dvResponsable'] ?? null) ?
             \implode('-', [$eventArray['rutResponsable'], $eventArray['dvResponsable']])
             : $eventArray['rutResponsable']);
         $this->descEvento = $eventArray['descEvento'];

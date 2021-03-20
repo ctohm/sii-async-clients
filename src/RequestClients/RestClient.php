@@ -132,9 +132,8 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
         Structures\EventosHistoricosParameters $requestPayload,
         array $options = ['debug' => false]
     ): DteCedibleResponse {
-        $this->authOnSii();
-
-        $tokencookie = $this->getCookieJar()->getCookieByName('token');
+        $cookies = $this->authOnSii();
+        $tokencookie = $cookies->getCookieByName('token');
         $token = '';
         //self::$tipo_documento = $tipo_doc;
         if ($tokencookie) {
@@ -172,10 +171,10 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
         Structures\EventosHistoricosParameters $requestPayload,
         $options = []
     ): PromiseInterface {
-        $this->authOnSii();
+        $cookies = $this->authOnSii();
 
         try {
-            $tokencookie = $this->getCookieJar()->getCookieByName('token');
+            $tokencookie = $cookies->getCookieByName('token');
 
             $token = '';
 
@@ -187,7 +186,7 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
             $url = $this->getUrl('validarAccesoReceptor', self::$common_uri);
             $mergedOpts = \array_merge(self::$CommonOptions, $options, [
                 'json' => $json_values,
-                'cookies' => $this->getCookieJar(),
+                'cookies' => $cookies,
             ]);
 
             return $this->sendSiiRequestAsync(

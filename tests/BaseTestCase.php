@@ -13,16 +13,19 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Stringable;
 use Orchestra\Testbench\Console\Kernel;
 use Orchestra\Testbench\TestCase;
-use PHPUnit\Runner\AfterLastTestHook;
-use PHPUnit\Runner\BeforeFirstTestHook;
 use Tests\Helpers\SiiSignature;
 
 /**
  * @internal
  * @coversNothing
  */
-class BaseTestCase extends TestCase implements AfterLastTestHook, BeforeFirstTestHook
+class BaseTestCase extends TestCase
 {
+    public function kdump(...$args): void
+    {
+        kdump(...$args);
+    }
+
     /*
         |--------------------------------------------------------------------------
         | Bootstrap The Test Environment

@@ -330,8 +330,7 @@ final class ExceptionHelper
         $msg = $e->getMessage();
         $trace0 = $e->getTrace()[0];
 
-        if (
-            isset($trace0['args'][1])
+        if (isset($trace0['args'][1])
             && \is_string($trace0['args'][1])
         ) {
             $msg .= ': ' . $trace0['args'][1];

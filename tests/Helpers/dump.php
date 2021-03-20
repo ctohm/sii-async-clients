@@ -9,6 +9,7 @@ use Kint\Parser\BlacklistPlugin;
 use Kint\Renderer\CliRenderer;
 use Kint\Renderer\RichRenderer;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Tests\BaseTestCase;
 
 \defined('STDERR') || \define('STDERR', \fopen('php://stderr', 'wb'));
 
@@ -40,7 +41,6 @@ if (!\function_exists('console')) {
     {
         return app(ConsoleOutput::class);
     }
-    Kint::$aliases[] = 'kdiffd';
 }
 
 if (!\function_exists('kdd')) {
@@ -58,7 +58,10 @@ if (!\function_exists('kdd')) {
 
 RichRenderer::$folder = false;
 BlacklistPlugin::$shallow_blacklist[] = 'Psr\Container\ContainerInterface';
-
+Kint::$aliases[] = [BaseTestCase::class, 'kdump'];
+Kint::$aliases[] = ["illuminate\support\collection", 'kdump'];
 Kint::$aliases[] = 'dump';
 Kint::$aliases[] = 'dd';
 Kint::$aliases[] = 'd';
+
+Kint::$aliases[] = ['tests\basetestcase', 'kdump'];

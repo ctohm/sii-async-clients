@@ -20,7 +20,9 @@ beforeEach(function (): void {
     /** @var \CTOhm\SiiAsyncClients\RequestClients\RestClient $rpetcClient */
     $this->restClient = app()->makeWith(RestClient::class, ['siiSignature' => app(SiiSignature::class)]);
 });
-it('Can retrieve testRestAuth for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve testRestAuth for a given DTE',
+    function ($dte_id): void {
     [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
     $params = [
@@ -45,11 +47,14 @@ it('Can retrieve testRestAuth for a given DTE', function ($dte_id): void {
     $this->assertArrayHasKey('dvReceptor', $dteInfo);
     $this->assertArrayHasKey('fechaEmision', $dteInfo);
     $this->assertArrayHasKey('montoTotal', $dteInfo);
-})->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115', '76986660-4_34_135', '76986660-4_34_136']);
+}
+)->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115', '76986660-4_34_135', '76986660-4_34_136']);
 /**
  * A basic test example.
  */
-it('Can retrieve RpetcClient::listarEventosHistDoc for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve RpetcClient::listarEventosHistDoc for a given DTE',
+    function ($dte_id): void {
     [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
     $requestPayload = new EventosHistoricosParameters([
@@ -58,8 +63,6 @@ it('Can retrieve RpetcClient::listarEventosHistDoc for a given DTE', function ($
         'folio' => (int) $folio,
     ]);
     $promise = $this->restClient->listarEventosHistDoc($requestPayload)->then(function ($result): void {
-        kdump($result);
-
         if (\array_key_exists('listEvenHistDoc', $result)) {
             foreach ($result['listEvenHistDoc'] as $evento) {
                 // kdump($evento->jsonSerialize());
@@ -70,4 +73,5 @@ it('Can retrieve RpetcClient::listarEventosHistDoc for a given DTE', function ($
 
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
-})->with(['76986660-4_34_95']);
+}
+)->with(['76986660-4_34_95']);

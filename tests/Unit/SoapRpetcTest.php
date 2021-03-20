@@ -25,7 +25,9 @@ beforeEach(function (): void {
 /**
  * A basic test example.
  */
-it('Can retrieve testGetEstadoCesion for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve testGetEstadoCesion for a given DTE',
+    function ($dte_id): void {
     $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
 
     $siiToken = $this->siiToken;
@@ -42,7 +44,8 @@ it('Can retrieve testGetEstadoCesion for a given DTE', function ($dte_id): void 
 
     $this->assertInstanceOf(PromiseInterface::class, $estCesionResult);
     $estCesionResult->wait();
-})->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);
+}
+)->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);
 
 //getEstCesion
 //getEstCesionRelac
@@ -50,7 +53,9 @@ it('Can retrieve testGetEstadoCesion for a given DTE', function ($dte_id): void 
 /**
  * A basic test example.
  */
-it('Can retrieve getEstadoCesionRelacion for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve getEstadoCesionRelacion for a given DTE',
+    function ($dte_id): void {
     [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
     $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
@@ -68,13 +73,14 @@ it('Can retrieve getEstadoCesionRelacion for a given DTE', function ($dte_id): v
 
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
-})->with(['76986660-4_34_95', '76986660-4_34_106']);
-it('Can retrieve AEC getEstadoEnvio from track_id', function ($track_id): void {
-
+}
+)->with(['76986660-4_34_95', '76986660-4_34_106']);
+it(
+    'Can retrieve AEC getEstadoEnvio from track_id',
+    function ($track_id): void {
     /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
     $soapClient = $this->soapClient;
     $siiToken = $this->siiToken;
-
 
     $promise = $soapClient->getEstEnvio($siiToken, $track_id)->then(function ($result) use ($track_id): void {
         $this->assertArrayHasKey('estado', $result);
@@ -86,4 +92,5 @@ it('Can retrieve AEC getEstadoEnvio from track_id', function ($track_id): void {
 
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
-})->with(['5131325004']);
+}
+)->with(['5131325004']);

@@ -26,7 +26,9 @@ beforeEach(function (): void {
 /**
  * A basic test example.
  */
-it('Can retrieve testGetEstDte for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve testGetEstDte for a given DTE',
+    function ($dte_id): void {
     $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
 
     $siiToken = $this->siiToken;
@@ -45,12 +47,15 @@ it('Can retrieve testGetEstDte for a given DTE', function ($dte_id): void {
 
     $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
     $testGetEstDte->wait();
-})->with(['76986660-4_34_135', '76986660-4_34_136']);
+}
+)->with(['76986660-4_34_135', '76986660-4_34_136']);
 
 /**
  * A basic test example.
  */
-it('Can retrieve testGetEstDteAv for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve testGetEstDteAv for a given DTE',
+    function ($dte_id): void {
     $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)));
 
     $siiToken = $this->siiToken;
@@ -84,4 +89,5 @@ it('Can retrieve testGetEstDteAv for a given DTE', function ($dte_id): void {
 
     $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
     $testGetEstDte->wait();
-})->with(['76986660-4_34_135', '76986660-4_34_136']);
+}
+)->with(['76986660-4_34_135', '76986660-4_34_136']);

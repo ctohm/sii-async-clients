@@ -185,15 +185,15 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
                 return new FulfilledPromise(['error' => $e->getMessage()]);
             });
     }
-    public function getEstEnvio(
 
-        $siiToken = null,
+    public function getEstEnvio(
+        $siiToken,
         $track_id
     ) {
         return $this->getRpetcWsdlClientInstance(self::$defaultClientOptions)->getEstEnvio(
             self::$soapToken,
             $track_id
-        );/*
+        ); /*
             ->otherwise(static function ($e) {
                 dump(ExceptionHelper::normalizeException($e));
                 Log::warning($e);
@@ -201,6 +201,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
                 return new FulfilledPromise(['error' => $e->getMessage()]);
             });*/
     }
+
     public function getEstadoCesionRelacion(
         Structures\EstadoCesionRelacionParameters $estadoCesionRelacionParameters
     ): PromiseInterface {
@@ -232,14 +233,18 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
 
         return self::$soapToken;
     }
+
     public static function getSignedTokenRequest(?SiiSignatureInterface $siiSignature = null)
     {
         $siiSignature = $siiSignature ?? self::$siiSignature;
+
         return self::getTokenGetterClientInstance(self::$defaultClientOptions)->getSignedTokenRequest($siiSignature);
     }
+
     public static function getTokenRequest(?SiiSignatureInterface $siiSignature = null)
     {
         $siiSignature = $siiSignature ?? self::$siiSignature;
+
         return self::getTokenGetterClientInstance(self::$defaultClientOptions)->getTokenRequest();
     }
 

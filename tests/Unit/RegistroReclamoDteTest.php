@@ -30,7 +30,9 @@ beforeEach(function (): void {
 /**
  * A basic test example.
  */
-it('Can retrieve listarEventosHistDoc for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve listarEventosHistDoc for a given DTE',
+    function ($dte_id): void {
     [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
     $siiToken = $this->siiToken;
@@ -44,7 +46,7 @@ it('Can retrieve listarEventosHistDoc for a given DTE', function ($dte_id): void
     $promise = $soapClient->listarEventosHistDoc($requestPayload)->then(function ($result): void {
         if (\array_key_exists('listEvenHistDoc', $result)) {
             foreach ($result['listEvenHistDoc'] as $evento) {
-                kdump($evento->jsonSerialize());
+                //$this->kdump($evento->jsonSerialize());
                 $this->assertInstanceOf(EventoHistoricoInstance::class, $evento);
             }
         }
@@ -52,11 +54,14 @@ it('Can retrieve listarEventosHistDoc for a given DTE', function ($dte_id): void
 
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
-})->with(['76986660-4_34_95']);
+}
+)->with(['76986660-4_34_95']);
 /**
  * A basic test example.
  */
-it('Can retrieve consultarDocDteCedible for a given DTE', function ($dte_id): void {
+it(
+    'Can retrieve consultarDocDteCedible for a given DTE',
+    function ($dte_id): void {
     [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
     $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
@@ -73,4 +78,5 @@ it('Can retrieve consultarDocDteCedible for a given DTE', function ($dte_id): vo
 
     $this->assertInstanceOf(PromiseInterface::class, $promise);
     $promise->wait();
-})->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);
+}
+)->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);

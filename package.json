@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "psalm:unused": "yarn psalter --issues=UnusedMethod,PossiblyUnusedMethod,UnusedProperty,PossiblyUnusedProperty,UnusedVariable ",
+    "psalm:unused": "yarn psalter --issues=UnusedProperty,UnusedVariable ",
     "psalm:undefined": "yarn psalter --issues=MissingReturnType,MissingClosureReturnType,InvalidReturnType,InvalidNullableReturnType,InvalidFalsableReturnType,MissingParamType,MissingPropertyType,MismatchingDocblockParamType,MismatchingDocblockReturnType ",
     "pest": "vendor/bin/pest",
     "psalter": "vendor/bin/psalm    --config=psalm.xml  --alter   --allow-backwards-incompatible-changes=false  --safe-types --dry-run",
@@ -18,7 +18,7 @@
     "config:localhost": "make clean_env APP_ENV=local && php artisan config:list database.connections",
     "config:dev": "make clean_env APP_ENV=development && php artisan config:list database.connections",
     "lint": "eslint --ext .js,.vue resources/js",
-    "csfixer":"vendor/bin/php-cs-fixer fix --config=.php_cs.php",
+    "csfixer":"tools/phpcbf  --standard=.phpcs.xml src/* && vendor/bin/php-cs-fixer fix --config=.php_cs.php",
     "require_checker":"vendor/bin/composer-require-checker --config-file=composer-require-checker.json",
 
     "prepare": "husky install"
@@ -29,15 +29,8 @@
     }
   },
   "lint-staged": {
-    "resources/**/*.{js,vue}": [
-      "eslint --fix",
-      "git add"
-    ],
-    "src/**/*.{php}": [
-    
-      "yarn csfixer",
-      "git add"
-    ]
+    "resources/**/*.{js,vue}": "eslint --fix",
+    "src/*.php":       "yarn csfixer"
   },
   "devDependencies": {
     "eslint": "^7.21.0",

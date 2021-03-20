@@ -13,12 +13,12 @@ class Misc
     /**
      * Comprueba si el rut ingresado es válido.
      *
-     * @param string  $rut
-     * @param string  $dv
-     * @param bool $throw  pass true to throw and exception on invalid rut instead of returning false
+     * @param bool $throw pass true to throw and exception on invalid rut instead of returning false
      * @psalm-return list<string>
-     * @return string[]  the resulting array means [numero: string, dv:string, rut_recibido: string]|bool
+     *
      * @throws InvalidRutException if RUT is invalid
+     *
+     * @return string[] the resulting array means [numero: string, dv:string, rut_recibido: string]|bool
      */
     public static function validaRut(string $rut, string $dv = '', $throw = true)
     {
@@ -39,12 +39,13 @@ class Misc
         $i = 2;
         $suma = 0;
         $dv = \mb_strtoupper((string) $dv);
+
         foreach (\array_reverse(\mb_str_split($numero)) as $v) {
             if (8 === $i) {
                 $i = 2;
             }
             $suma += $v * $i;
-            $i++;
+            ++$i;
         }
         $dvr = 11 - ($suma % 11);
 
@@ -61,8 +62,9 @@ class Misc
         $rut_esperado = \implode('-', [
             $numero, (string) $dvr,
         ]);
+
         if ((string) $rut_recibido !== $rut_esperado) {
-            debuglog()->info([
+            kdump([
                 'msg' => 'RUT inválido',
                 'input' => [
                     $numero, $dv,
@@ -70,6 +72,7 @@ class Misc
                     $numero, $dvr,
                 ],
             ]);
+
             throw new InvalidRutException('RUT inválido: ' . $rut_recibido . ' DV esperado: ' . $dvr, 1);
         }
 

@@ -15,7 +15,9 @@ use CTOhm\SiiAsyncClients\Util\Misc;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use SimpleXMLElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 class RpetcClient extends RestClient
@@ -148,24 +150,14 @@ class RpetcClient extends RestClient
 
     /**
      * Undocumented function.
-     *
-     * @param \Carbon\Carbon $fecha_desde
-     * @param \Carbon\Carbon $fecha_hasta
      */
-    public function getCesionesRecibidas(string $rut_empresa, ?Carbon $fecha_desde = null, ?Carbon $fecha_hasta = null): ?Collection
-    {
-        $dte_url = 'RTCConsultaCesiones.cgi';
-        $referer = 'RTCConsultaCesionesHtml.cgi';
-
-        $CESIONES = '';
-
+    public function getCesionesRecibidas(
+        string $rut_empresa,
+        ?Carbon $fecha_desde = null,
+        ?Carbon $fecha_hasta = null,
+        array $options = ['TXTXML' => 'TXT', 'TIPOCONSULTA' => self::TIPO_CESIONARIO]
+    ): ?Collection {
         $representacion = $this->representar($rut_empresa);
-
-        if ($representacion instanceof \Exception) {
-            kdump($representacion);
-
-            return null;
-        }
 
         if ($representacion !== $rut_empresa) {
             kdump($representacion);
@@ -173,49 +165,41 @@ class RpetcClient extends RestClient
 
             return null;
         }
+        $dte_url = 'RTCConsultaCesiones.cgi';
+        $referer = 'RTCConsultaCesionesHtml.cgi';
 
-        $query = [
-            'TXTXML' => 'TXT',
+        $CESIONES = '';
+
+        $query = \array_merge(['TXTXML' => 'TXT', 'TIPOCONSULTA' => self::TIPO_CESIONARIO], $options, [
             'DESDE' => $fecha_desde->format('dmY'),
             'HASTA' => $fecha_hasta->format('dmY'),
-        ];
+        ]);
 
         try {
-            $query['TIPOCONSULTA'] = self::TIPO_CESIONARIO;
-
             $response = $this->sendSiiRequest(
                 'POST',
                 $this->getUrl($dte_url, self::$common_uri),
                 [
                     'headers' => ['referer' => $this->getUrl($referer, self::$common_uri)],
-                    //'debug'       => true,
-                    'form_params' => $query,
+                    'form_params' => $query, // 'debug' => true
                 ]
                 //true
             );
             $contents = $response->getBody()->getContents();
 
-            $cleancontents = \explode("\n", \trim($contents));
-            \array_shift($cleancontents);
-            //array_pop($cleancontents);
-            $fields = \explode(';', \array_shift($cleancontents));
+            if ('TXT' === $query['TXTXML']) {
+                return $this->mapCsvToArray($contents);
+            }
 
-            $mapped = collect($cleancontents)->map(static function ($str_row) {
-                return \explode(';', $str_row);
-            })->filter(static function ($row) use ($fields) {
-                return \count($row) === \count($fields);
-            })->map(static function ($row) use ($fields) {
-                return \array_combine(
-                    \array_map(static fn ($key) => Str::snake(\mb_strtolower($key)), $fields),
-                    $row
-                );
-            });
+            $xml = \simplexml_load_string($contents);
+            $xml->registerXPathNamespace('SII', 'http://www.sii.cl/XMLSchema');
+            $cesiones = $xml->xpath('.//SII:RESP_BODY/CESION');
+            $datos_consulta = $xml->xpath('.//SII:RESP_BODY/DATOS_CONSULTA');
+            $consultaCollection = collect(\array_change_key_case(\json_decode(\json_encode($datos_consulta[0]), true)));
 
-            //array_combine(array_map(fn($key)=>Str::snake(strtolower($key)),array_keys($cesion)),array_values($cesion))
+            $cesionesCollection = collect($cesiones)->map(static fn (SimpleXMLElement $xmlElement) => \array_change_key_case(\json_decode(\json_encode($xmlElement), true)));
 
-            return $mapped;
-            // dump($cesiones);
-            // self::dumpHistory();
+            return $consultaCollection->put('cesiones', $cesionesCollection);
         } catch (\Exception $e) {
             dump($e);
 
@@ -227,68 +211,10 @@ class RpetcClient extends RestClient
     }
 
     /**
-     * Undocumented function.
-     *
-     * @return \Exception|string
-     */
-    private function representar(string $rut_empresa)
-    {
-        if (self::$authenticatedOnSii && $this->representandoA === $rut_empresa) {
-            return $this->representandoA;
-        }
-        // If already authenticated, this method is a no-op
-        $this->authOnSii();
-        [$rutEmpresa, $dvEmpresa] = \explode('-', $rut_empresa);
-
-        try {
-            $certpaths = self::getCertFiles();
-            //dump(['self::$certpaths path: ' => $certpaths]);
-
-            $response = $this->sendSiiRequest('POST', 'https://herculesr.sii.cl/cgi_AUT2000/admRepresentar.cgi', [
-                'headers' => [
-                    'Origin' => 'https://herculesr.sii.cl',
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
-                ],
-                'form_params' => ['RUT_RPDO' => $rutEmpresa, 'APPLS' => 'RPETC'],
-                'cert' => $certpaths['client'],
-                'ssl_key' => $certpaths['key'],
-                'verify' => $certpaths['ca'] ?? null,
-            ]);
-
-            $representarDOM = $response->getBody()->getContents();
-
-            $crawler = new Crawler($representarDOM);
-            $realizada = $crawler->filter('#my-wrapper h2')->eq(0)->text();
-            $representandoA = $crawler->filter('#my-wrapper .bloque p ')->eq(0)->text();
-            $representandoRUT = $crawler->filter('#my-wrapper .bloque p ')->eq(1)->text();
-
-            if ($representandoRUT) {
-                $parsedRUT = \str_replace(['Rut:', 'document.write(formateaMiles(', '"."', ')', ',', ';', ' '], '', $representandoRUT);
-
-                $representandoA = $parsedRUT;
-            }
-
-            if ($representandoA !== $rut_empresa) {
-                kdump(['response_from_sii' => $representandoA]);
-
-                throw new \Exception('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
-            }
-            $this->representandoA = $representandoA;
-            //  kdump('Representando a ' . $this->representandoA);
-
-            return $representandoA;
-        } catch (\Exception $e) {
-            kdump($e);
-
-            return $e;
-        }
-    }
-    /**
      * Downloads an aec.
      *
-     * @param string  $rut_empresa   The rut empresa
-     * @param string  $id_documento  The identifier documento
+     * @param string $rut_empresa  The rut empresa
+     * @param string $id_documento The identifier documento
      *
      * @return array
      */
@@ -338,11 +264,212 @@ class RpetcClient extends RestClient
         } catch (\Exception $e) {
             $this->clearRepresentacion();
 
-
             return ['error' => $e->getMessage()];
             //self::dumpHistory();
         }
     }
+
+    /**
+     * Undocumented function.
+     */
+    public function getCertificadosForm(
+        string $rut_empresa,
+        ?Carbon $fecha_desde = null,
+        ?Carbon $fecha_hasta = null,
+        array $options = ['TIPOCONSULTA' => self::TIPO_CESIONARIO]
+    ): ?Collection {
+        $representacion = $this->representar($rut_empresa);
+
+        if ($representacion !== $rut_empresa) {
+            kdump('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
+
+            return collect([]);
+        }
+        $dte_url = 'RTCCertMas.cgi';
+        $referer = 'RTCCertMas.cgi';
+
+        $CESIONES = '';
+
+        $query = \array_merge([
+            'RUT1' => '',
+            'RUT2' => '',
+
+            'TIPOCONSULTA' => self::TIPO_CESIONARIO,
+        ], $options, [
+            'RUTQ' => $rut_empresa,
+            'STEP' => 1,
+            'DESDE' => $fecha_desde->format('dmY'),
+            'HASTA' => $fecha_hasta->format('dmY'),
+        ]);
+
+        try {
+            $response = $this->sendSiiRequest(
+                'POST',
+                $this->getUrl($dte_url, self::$common_uri),
+                [
+                    'headers' => ['referer' => $this->getUrl($referer, self::$common_uri)],
+                    'form_params' => $query,
+                ]
+                //true
+            );
+            $contents = $response->getBody()->getContents();
+            $cesionesArray = $this->getCesionesFromHTML(new Crawler($contents), $rut_empresa);
+
+            return $cesionesArray;
+            $ids = $cesionesArray->map(static fn (array $c) => $c['sii_id']);
+            $query2 = [
+                'RUT1' => '**',
+                'RUT2' => '**',
+
+                'TIPOCONSULTA' => $query['TIPOCONSULTA'],
+
+                'TIPOCERT' => 3,
+
+                'STEP' => 2,
+                'DESDE' => $fecha_desde->format('dmY'),
+                'HASTA' => $fecha_hasta->format('dmY'),
+
+                'chk' => $ids->join('&chk='),
+            ];
+            $response = $this->sendSiiRequest(
+                'POST',
+                $this->getUrl($dte_url, self::$common_uri),
+                [
+                    'headers' => [
+                        'content-type' => 'application/x-www-form-urlencoded',
+                        'referer' => $this->getUrl($referer, self::$common_uri),
+                    ],
+                    'body' => \urldecode(\http_build_query($query2)),
+                    //  'debug' => true,
+                    'sink' => storage_path('certificados.html'),
+                ]
+                //true
+            );
+            $contents = $response->getBody()->getContents();
+            $iconverted = \iconv(self::detectStringEncoding($contents), 'UTF-8', $contents);
+            Storage::drive('testing')->put('iconverted.html', $iconverted);
+            $encoded = \utf8_encode($contents);
+            Storage::drive('testing')->put('encoded.html', $encoded);
+            $crawler = new Crawler($iconverted);
+
+            $tablas = $crawler->filter('#contenedor > div > table')->each(static function (Crawler $table) {
+                //$images = $table                    ->images();
+                return $table->outerHtml();
+            });
+            // kdd($tablas);
+        } catch (\Exception $e) {
+            dump($e);
+
+            return null;
+            //self::dumpHistory();
+        }
+
+        return $CESIONES;
+    }
+
+    public static function detectStringEncoding($xml_string)
+    {
+        $output = [];
+        \exec(\sprintf("echo '%s' | file -i - ", $xml_string), $output);
+
+        if (isset($output[0])) {
+            $ex = \explode('charset=', $output[0]);
+
+            return isset($ex[1]) ? \mb_strtoupper(\str_replace('us-ascii', 'ASCII', $ex[1])) : null;
+        }
+
+        return null;
+    }
+
+    private function mapCsvToArray(string $csvString): Collection
+    {
+        $cleancontents = \explode("\n", \trim($csvString));
+        \array_shift($cleancontents);
+        //array_pop($cleancontents);
+        $fields = \explode(';', \array_shift($cleancontents));
+
+        $mapped = collect($cleancontents)->map(static function ($str_row) {
+            return \explode(';', $str_row);
+        })->filter(static function ($row) use ($fields) {
+            return \count($row) === \count($fields);
+        })->map(static function ($row) use ($fields) {
+            return \array_combine(
+                \array_map(static fn ($key) => Str::snake(\mb_strtolower($key)), $fields),
+                $row
+            );
+        });
+
+        //array_combine(array_map(fn($key)=>Str::snake(strtolower($key)),array_keys($cesion)),array_values($cesion))
+
+        return $mapped;
+    }
+
+    /**
+     * Undocumented function.
+     *
+     * @return \Exception|string
+     */
+    private function representar(string $rut_empresa)
+    {
+        if (self::$authenticatedOnSii && $this->representandoA === $rut_empresa) {
+            return $this->representandoA;
+        }
+        // If already authenticated, this method is a no-op
+        $this->authOnSii();
+        [$rutEmpresa, $dvEmpresa] = \explode('-', $rut_empresa);
+
+        try {
+            //dump(['self::$certpaths path: ' => $certpaths]);
+
+            $response = $this->sendSiiRequest(
+                'POST',
+                'https://herculesr.sii.cl/cgi_AUT2000/admRepresentar.cgi',
+                \array_merge(static::getCertFiles(), [
+                    'headers' => [
+                        'Origin' => 'https://herculesr.sii.cl',
+                        'Content-Type' => 'application/x-www-form-urlencoded',
+                        'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
+                    ],
+                    'form_params' => ['RUT_RPDO' => $rutEmpresa, 'APPLS' => 'RPETC'],
+                ])
+            );
+
+            $representarDOM = Str::of($response->getBody()->getContents());
+
+            if (!$representarDOM->contains('REPRESENTACIÓN REALIZADA')) {
+                throw new \Exception('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
+            }
+            $representandoA = null;
+            $div = $representarDOM->after('REPRESENTACIÓN REALIZADA</h2>')
+                ->before('<p><strong>En las aplicaciones')
+                ->afterLast('<p>')
+                ->beforeLast('</p>');
+
+            $crawler = new Crawler($div->__toString());
+            $representandoRUT = ($crawler->text());
+
+            if ($representandoRUT) {
+                $parsedRUT = \str_replace(['Rut:', 'document.write(formateaMiles(', '"."', ')', ',', ';', ' '], '', $representandoRUT);
+
+                $representandoA = $parsedRUT;
+            }
+
+            if ($representandoA !== $rut_empresa) {
+                kdump(['response_from_sii' => $representandoA]);
+
+                throw new \Exception('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
+            }
+            $this->representandoA = $representandoA;
+            //  kdump('Representando a ' . $this->representandoA);
+
+            return $representandoA;
+        } catch (\Exception $e) {
+            kdump(ExceptionHelper::normalizeException($e));
+
+            return $e;
+        }
+    }
+
     /**
      * @return (mixed|null|string)[]
      *
@@ -351,21 +478,22 @@ class RpetcClient extends RestClient
     private static function parseDetalleHtml(
         string $detalleConsultaDOM
     ): array {
-        //dump(['parseTablaDatos' => $index]);
-        $crawler = new Crawler($detalleConsultaDOM);
+        $tablaContenidoHTML = Str::of(($detalleConsultaDOM))->afterLast('<table')
+            ->before('</table')
+            ->prepend('<table ')->append('</table>')->__toString();
 
         try {
-            $tablaContenido = $crawler->filter('body > table')->eq(1);
+            $crawler = new Crawler($tablaContenidoHTML);
+
             $content = [];
 
-            if (!$tablaContenido) {
+            if (!$crawler) {
                 return [
                     $detalleConsultaDOM, null,
                 ];
             }
-            $tablaContenidoHTML = $tablaContenido->html();
 
-            $rows = $tablaContenido->filter('table > tr');
+            $rows = $crawler->filter('tr');
 
             if (!$rows->count()) {
                 return [
@@ -398,7 +526,7 @@ class RpetcClient extends RestClient
 
             return [\sprintf('<table>%s %s %s </table>', \PHP_EOL, $tablaContenidoHTML, \PHP_EOL), $infoDetalle];
         } catch (\InvalidArgumentException $e) {
-            dump($e);
+            kdump($e);
         }
 
         return [
@@ -406,39 +534,39 @@ class RpetcClient extends RestClient
         ];
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    private function getCesionesFromCSV(Crawler $tableHtml, string $rut_empresa)
+    private function getCesionesFromHTML(Crawler $tableHtml, string $rut_empresa): Collection
     {
-        $tableHtml = $tableHtml->filter('tbody > tr')->reduce(static function ($tr) use ($rut_empresa) {
+        $tableHtml = $tableHtml->filter('tbody > tr')->reduce(static function ($tr) {
             $tds = $tr->filter('td');
 
-            return $tds->count() >= 9 && $tds->eq(2)->text() === $rut_empresa;
+            return $tds->count() >= 9; //&& $tds->eq(2)->text() === $rut_empresa;
         });
 
         $cesiones = collect($tableHtml->each(static function ($tr) {
             $tds = $tr->filter('td');
+
             $tipoDocText = $tds->eq(7)->text();
             $tipoDoc = 'FACTURA ELECTRONICA' === $tipoDocText ? 33 : 34;
             $rutEmisor = $tds->eq(6)->text();
 
             $folio = $tds->eq(8)->text();
             $dte_id = \sprintf('%s_%d_%d', $rutEmisor, $tipoDoc, $folio);
+            $sii_id = Str::of($tds->eq(0)->html())->afterLast('="')->beforeLast('">')->__toString();
 
             return [
+                'sii_id' => (int) $sii_id,
                 'dte_id' => $dte_id,
-                'rutCedente' => $tds->eq(1)->text(),
-                'rutCesionario' => $tds->eq(2)->text(),
-                'fechaCesion' => $tds->eq(4)->text(),
-                'fechaEmision' => $tds->eq(9)->text(),
-                'rutDeudor' => $tds->eq(3)->text(),
-                'tipoDocText' => $tipoDocText,
-                'rutEmisor' => $rutEmisor,
-                'tipoDoc' => $tipoDoc,
+                'rut_cedente' => $tds->eq(1)->text(),
+                'rut_cesionario' => $tds->eq(2)->text(),
+                'fecha_cesion' => $tds->eq(4)->text(),
+                'fecha_emision' => $tds->eq(9)->text(),
+                'rut_deudor' => $tds->eq(3)->text(),
+                'tipo_docText' => $tipoDocText,
+                'rut_emisor' => $rutEmisor,
+                'tipo_doc' => $tipoDoc,
                 'folio' => $folio,
-                'montoCesion' => $tds->eq(5)->text(),
-                'montoTotal' => $tds->eq(10)->text(),
+                'monto_cesion' => (float) (Str::of($tds->eq(5)->text())->replace(["'", 'FormateDinero(', ');'], '')->__toString()),
+                'monto_total' => (float) (Str::of($tds->eq(10)->text())->replace(["'", 'FormateDinero(', ');'], '')->__toString()),
             ];
         }));
 

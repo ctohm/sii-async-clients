@@ -11,4 +11,5 @@ return [
     'soap_debug' => env('SOAP_DEBUG', false),
     'transaction_id' => \md5(\random_bytes(32)),
     'cacert_pemfile' => __DIR__ . '/../resources/cacert.pem',
+    'resource_folder' => __DIR__ . '/../resources',
 ];

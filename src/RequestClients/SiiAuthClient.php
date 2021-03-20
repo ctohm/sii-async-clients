@@ -124,20 +124,20 @@ class SiiAuthClient
      *
      * @throws \Exception (description)
      *
-     * @return null|object ( description_of_the_return_value )
+     * @return CookieJar ( description_of_the_return_value )
      */
-    public function authOnSii(array $options = ['debug' => false])
+    public function authOnSii(array $options = ['debug' => false]): CookieJar
     {
+        $cookies = $options['cookies'] ?? $this->getCookieJar();
+
         if (static::$authenticatedOnSii) {
-            return;
+            return $cookies;
         }
-        $stack = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS | \DEBUG_BACKTRACE_PROVIDE_OBJECT, 2);
-        //  dump(['authenticating against SII'=>$stack,'cookiejar'=>$this->getCookieJar($options)]);
-        $certpaths = static::getCertFiles();
+
         //dump($certpaths);
         $referencia = 'https://misiir.sii.cl/cgi_misii/siihome.cgi';
-        $cookies = $options['cookies'] ?? $this->getCookieJar();
-        $options = \array_merge($options, [
+
+        $options = \array_merge($options, static::getCertFiles(), [
             'headers' => [
                 'Origin' => 'https://zeusr.sii.cl',
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -146,9 +146,6 @@ class SiiAuthClient
             ],
             'retry' => 1,
             'form_params' => ['referencia' => $referencia],
-            'cert' => $certpaths['client'],
-            'ssl_key' => $certpaths['key'],
-            'verify' => $certpaths['ca'] ?? null,
             'cookies' => $cookies,
         ]);
 
@@ -171,9 +168,8 @@ class SiiAuthClient
     public function getToken(bool $debug = false): ?array
     {
         $siiToken = Cache::remember('siiToken', 300, function () {
-            $this->authOnSii(['stats' => false]);
-
-            $tokencookie = $this->getCookieJar()->getCookieByName('token');
+            $cookies = $this->authOnSii(['stats' => false]);
+            $tokencookie = $cookies->getCookieByName('token');
 
             if (null === $tokencookie) {
                 return;
@@ -183,21 +179,19 @@ class SiiAuthClient
         });
 
         if (\is_array($siiToken) && \array_key_exists('token', $siiToken)) {
-            $certpaths = static::getCertFiles();
-
-            $response = $this->sendSiiRequest('GET', 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi', [
-                'headers' => [
-                    'Origin' => 'https://zeusr.sii.cl',
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Connection' => 'close',
-                    'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/CAutInicio.cgi',
-                ],
-
-                'cert' => $certpaths['client'],
-                'ssl_key' => $certpaths['key'],
-                'verify' => $certpaths['ca'] ?? null,
-                'cookies' => $this->getCookieJar(),
-            ]);
+            $response = $this->sendSiiRequest(
+                'GET',
+                'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
+                \array_merge(static::getCertFiles(), [
+                    'headers' => [
+                        'Origin' => 'https://zeusr.sii.cl',
+                        'Content-Type' => 'application/x-www-form-urlencoded',
+                        'Connection' => 'close',
+                        'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/CAutInicio.cgi',
+                    ],
+                    'cookies' => $this->getCookieJar(),
+                ])
+            );
             $contents = \implode(
                 \PHP_EOL,
                 \array_slice(
@@ -304,7 +298,7 @@ class SiiAuthClient
     /**
      * Gets the cert files.
      *
-     * @return array{client:string,key:string,ca:string|null} array of paths to the cert files
+     * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
      */
     protected static function getCertFiles(): array
     {
@@ -317,11 +311,11 @@ class SiiAuthClient
             \fwrite(static::$tmp_file_pkey, static::$certs['pkey']);
             $tmp_file_pkey_path = \stream_get_meta_data(static::$tmp_file_pkey)['uri'];
             static::$certpaths = [
-                'client' => $tmp_file_cert_path,
-                'key' => $tmp_file_pkey_path,
+                'cert' => $tmp_file_cert_path,
+                'ssl_key' => $tmp_file_pkey_path,
             ];
 
-            self::$certpaths['ca'] = config('sii-clients.cacert_pemfile');
+            self::$certpaths['verify'] = config('sii-clients.cacert_pemfile');
 
             if (\array_key_exists('extracerts', static::$certs)) {
                 static::$tmp_file_extracerts = \tmpfile();
@@ -330,7 +324,7 @@ class SiiAuthClient
                     \fwrite(static::$tmp_file_extracerts, $cacert);
                 }
                 $tmp_file_extracerts_path = \stream_get_meta_data(static::$tmp_file_extracerts)['uri'];
-                static::$certpaths['ca'] = $tmp_file_extracerts_path;
+                static::$certpaths['verify'] = $tmp_file_extracerts_path;
             }
         }
 
