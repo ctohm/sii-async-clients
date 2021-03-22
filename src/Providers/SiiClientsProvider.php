@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace CTOhm\SiiAsyncClients\Providers;
 
 use CTOhm\SiiAsyncClients\Commands\GenerateFromWsdlCommand;
+use CTOhm\SiiAsyncClients\RequestClients\DteWsClient;
 use CTOhm\SiiAsyncClients\RequestClients\RestClient;
 use CTOhm\SiiAsyncClients\RequestClients\RpetcClient;
 use CTOhm\SiiAsyncClients\RequestClients\SoapProvider;
@@ -70,7 +71,16 @@ final class SiiClientsProvider extends ServiceProvider
 
             return new RestClient($siiSignature, $clientOptions);
         });
+        $this->app->singleton(DteWsClient::class, static function ($app, ?array $args = null): DteWsClient {
+            $siiSignature = self::verifySiiSignatureParameter($args);
+            $clientOptions = Arr::except($args, ['siiSignature']);
 
+            if (Cache::has('siiToken')) {
+                $clientOptions['cookies'] = CookieJar::fromArray(Cache::get('siiToken'), 'sii.cl');
+            }
+
+            return new DteWsClient($siiSignature, $clientOptions);
+        });
         $this->app->singleton(RpetcClient::class, static function ($app, ?array $args = null): RpetcClient {
             $siiSignature = self::verifySiiSignatureParameter($args);
             $clientOptions = Arr::except($args, ['siiSignature']);

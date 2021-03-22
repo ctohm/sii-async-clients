@@ -445,4 +445,33 @@ class SiiAuthClient
             };
         };
     }
+    /**
+     * { function_description }.
+     *
+     * @param string  $rut_empresa  The rut empresa
+     *
+     * @return object  ( description_of_the_return_value )
+     */
+    public   function selecionaEmpresa($rut_empresa, bool $debug = false)
+    {
+        $this->authOnSii();
+        $response = $this->sendSiiRequest(
+            'POST',
+            self::getUrl('mipeSelEmpresa.cgi'),
+            [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Referer' => self::getUrl('mipeSelEmpresa.cgi?DESDE_DONDE_URL=OPCION%3D2%26TIPO%3D4'),
+                ],
+                'form_params' => [
+                    //'DESDE_DONDE_URL' => 'OPCION%3D2%26TIPO%3D4',
+                    'RUT_EMP' => $rut_empresa,
+                ],
+                'debug' => $debug,
+            ]
+        );
+        $this->rut_empresa = $rut_empresa;
+
+        return $response;
+    }
 }
