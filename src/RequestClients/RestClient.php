@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace CTOhm\SiiAsyncClients\RequestClients;
 
+use CTOhm\SiiAsyncClients\RequestClients\Structures\CertificatesObjectInterface;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\DteCedibleResponse;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\EventosHistoricosParameters;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\RetrievesEventosHistoricosInterface;
@@ -78,7 +79,7 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
     /**
      * @var array<array-key, mixed>
      */
-    protected static $certs;
+    protected static CertificatesObjectInterface $certs;
 
     protected static $history;
 
@@ -99,19 +100,7 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
         parent::__construct($siiSignature, $clientOptions);
     }
 
-    /**
-     * Gets the url.
-     *
-     * @param string      $path   The path
-     * @param null|string $prefix The prefix
-     *
-     * @return string the url
-     */
-    public static function getUrl(string $path = '', ?string $prefix = null): string
-    {
-        //return sprintf('%s/%s', self::$base_url, $path);
-        return \sprintf('%s/%s', $prefix ?? self::$common_uri, $path);
-    }
+
 
     /**
      * Gets the namespace.

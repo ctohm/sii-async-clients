@@ -6,6 +6,9 @@
 
 namespace CTOhm\SiiAsyncClients\RequestClients;
 
+use CTOhm\SiiAsyncClients\RequestClients\AbstractCrawlers\RequestClientInterface;
+use CTOhm\SiiAsyncClients\RequestClients\AbstractCrawlers\SiiAbstractCrawler;
+use CTOhm\SiiAsyncClients\RequestClients\Structures\CertificatesObjectInterface;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
 use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
 use GuzzleHttp\Client;
@@ -25,7 +28,7 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @template T
  */
-class SiiAuthClient
+class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
 {
     const BASE_URL = 'https://www1.sii.cl/cgi-bin/Portal001';
     /**
@@ -86,10 +89,7 @@ class SiiAuthClient
      */
     protected static $cookiejar;
 
-    /**
-     * @var array
-     */
-    protected static $certs;
+
 
     /**
      * @var null|callable
@@ -106,19 +106,84 @@ class SiiAuthClient
     protected static $rut_empresa;
 
     protected static $tipo_documento;
-
+    protected static CertificatesObjectInterface $certs;
     /**
      * Constructs a new instance.
      */
     public function __construct(?SiiSignatureInterface $siiSignature = null, array $clientOptions = [])
     {
         self::$tempFolder = \sys_get_temp_dir();
+        self::$certs = $siiSignature->getCerts();
 
         self::$client = $this->getClient($clientOptions);
         // dump(self::$tempFolder);
-        static::$certs = $siiSignature->getCerts()->toArray();
     }
+    /**
+     * { function_description }.
+     *
+     * @param SiiSignatureInterface  $firmaElectronica  The firma electronica
+     */
+    public function recreate(SiiSignatureInterface $siiSignature, array $clientOptions = []): void
+    {
+        self::$certs = $siiSignature->getCerts();
 
+        self::$client = $this->getClient($clientOptions);
+
+        $clientOptions['cookies'] = $clientOptions['cookies'] ?? [];
+        if ($clientOptions['cookies'] instanceof CookieJar) {
+            SiiAuthClient::$cookiejar = $clientOptions['cookies'];
+        } else {
+            SiiAuthClient::$cookiejar = null;
+
+            SiiAuthClient::$cookiejar = $this->getCookieJar();
+        }
+        static::$authenticatedOnSii = false;
+        SiiAuthClient::$client = null;
+        SiiAuthClient::$client = $this->getClient($clientOptions);
+        // kdump(self::$tempFolder);
+    }
+    /**
+     * { function_description }.
+     *
+     * @param string  $rut_empresa  The rut empresa
+     *
+     * @return object  ( description_of_the_return_value )
+     */
+    public function selecionaEmpresa($rut_empresa, bool $debug = false)
+    {
+        $this->authOnSii();
+        $response = $this->sendSiiRequest(
+            'POST',
+            self::getUrl('mipeSelEmpresa.cgi'),
+            [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Referer' => self::getUrl('mipeSelEmpresa.cgi?DESDE_DONDE_URL=OPCION%3D2%26TIPO%3D4'),
+                ],
+                'form_params' => [
+                    //'DESDE_DONDE_URL' => 'OPCION%3D2%26TIPO%3D4',
+                    'RUT_EMP' => $rut_empresa,
+                ],
+                'debug' => $debug,
+            ]
+        );
+        self::$rut_empresa = $rut_empresa;
+
+        return $response;
+    }
+    /**
+     * Gets the url.
+     *
+     * @param string      $path   The path
+     * @param null|string $prefix The prefix
+     *
+     * @return string the url
+     */
+    public static function getUrl(string $path = '', ?string $prefix = null): string
+    {
+        //return sprintf('%s/%s', self::$base_url, $path);
+        return \sprintf('%s/%s', $prefix ?? self::$common_uri, $path);
+    }
     /**
      * Authenticates against the SII.
      *
@@ -137,7 +202,7 @@ class SiiAuthClient
         //dump($certpaths);
         $referencia = 'https://misiir.sii.cl/cgi_misii/siihome.cgi';
 
-        $options = \array_merge($options, static::getCertFiles(), [
+        $options = \array_merge($options, self::getCertFiles(), [
             'headers' => [
                 'Origin' => 'https://zeusr.sii.cl',
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -182,7 +247,7 @@ class SiiAuthClient
             $response = $this->sendSiiRequest(
                 'GET',
                 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
-                \array_merge(static::getCertFiles(), [
+                \array_merge($this->getCertFiles(), [
                     'headers' => [
                         'Origin' => 'https://zeusr.sii.cl',
                         'Content-Type' => 'application/x-www-form-urlencoded',
@@ -288,53 +353,38 @@ class SiiAuthClient
     }
 
     /**
-     * @return array
+     * @return CertificatesObjectInterface
      */
     protected function getCerts()
     {
         return static::$certs;
     }
 
+
+    private function fillAndRetrieveTemporaryFile(...$contents)
+    {
+
+        $tmp_file_cert = \tmpfile();
+        foreach ($contents as $content) {
+            \fwrite($tmp_file_cert, $content);
+        }
+
+        return (\stream_get_meta_data($tmp_file_cert))['uri'];
+    }
     /**
      * Gets the cert files.
      *
      * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
      */
-    protected static function getCertFiles(): array
+    public static function getCertFiles(): array
     {
-        if (!static::$certpaths) {
-            static::$tmp_file_cert = \tmpfile(); //\fopen(storage_path('tmp/tmp_file_cert.pem'), 'wb');
-            \fwrite(static::$tmp_file_cert, static::$certs['cert']);
-            $tmp_file_cert_path = \stream_get_meta_data(static::$tmp_file_cert)['uri'];
 
-            static::$tmp_file_pkey = \tmpfile(); // \fopen(storage_path('tmp/tmp_file_pkey.key'), 'wb');
-            \fwrite(static::$tmp_file_pkey, static::$certs['pkey']);
-            $tmp_file_pkey_path = \stream_get_meta_data(static::$tmp_file_pkey)['uri'];
-            static::$certpaths = [
-                'cert' => $tmp_file_cert_path,
-                'ssl_key' => $tmp_file_pkey_path,
-            ];
-
-            self::$certpaths['verify'] = config('sii-clients.cacert_pemfile');
-
-            if (\array_key_exists('extracerts', static::$certs)) {
-                static::$tmp_file_extracerts = \tmpfile();
-
-                foreach (static::$certs['extracerts'] as $cacert) {
-                    \fwrite(static::$tmp_file_extracerts, $cacert);
-                }
-                $tmp_file_extracerts_path = \stream_get_meta_data(static::$tmp_file_extracerts)['uri'];
-                static::$certpaths['verify'] = $tmp_file_extracerts_path;
-            }
-        }
-
-        return self::$certpaths;
+        return self::$certs->getPaths();
     }
-
     /**
      * Clears the client and its cookies.
      */
-    protected function clear(): void
+    public function clear(): void
     {
         $this->getCookieJar()->clear();
         static::$authenticatedOnSii = false;
@@ -444,34 +494,5 @@ class SiiAuthClient
                 return $handler($request, $options);
             };
         };
-    }
-    /**
-     * { function_description }.
-     *
-     * @param string  $rut_empresa  The rut empresa
-     *
-     * @return object  ( description_of_the_return_value )
-     */
-    public   function selecionaEmpresa($rut_empresa, bool $debug = false)
-    {
-        $this->authOnSii();
-        $response = $this->sendSiiRequest(
-            'POST',
-            self::getUrl('mipeSelEmpresa.cgi'),
-            [
-                'headers' => [
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Referer' => self::getUrl('mipeSelEmpresa.cgi?DESDE_DONDE_URL=OPCION%3D2%26TIPO%3D4'),
-                ],
-                'form_params' => [
-                    //'DESDE_DONDE_URL' => 'OPCION%3D2%26TIPO%3D4',
-                    'RUT_EMP' => $rut_empresa,
-                ],
-                'debug' => $debug,
-            ]
-        );
-        $this->rut_empresa = $rut_empresa;
-
-        return $response;
     }
 }

@@ -10,6 +10,23 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class DteWsClient extends SiiAuthClient
 {
+    /**
+     * Gets the cert files.
+     *
+     * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
+     */
+    public function getPaths(): array
+    {
+        if (count($this->certpaths) === 0) {
+            $this->certpaths = [
+                'cert' => \stream_get_meta_data($this->certFile)['uri'],
+                'ssl_key' => \stream_get_meta_data($this->pkeyFile)['uri'],
+                'verify' => $this->caFile ? \stream_get_meta_data($this->caFile)['uri'] : config('sii-clients.cacert_pemfile')
+            ];
+        }
+
+        return $this->certpaths;
+    }
     public static $debug = true;
     /**
      * Gets the url.
@@ -33,7 +50,7 @@ class DteWsClient extends SiiAuthClient
      *
      * @return Crawler|array<array-key, mixed>  ( description_of_the_return_value )
      */
-    public   function listaDocumentosEmitidos(
+    public function listaDocumentosEmitidos(
         $rut_empresa,
         $FEC_DESDE = '',
         $FEC_HASTA = ''
@@ -68,7 +85,7 @@ class DteWsClient extends SiiAuthClient
             ]
         );
 
-        $docsEmitidos = tap($response->getBody()->getContents(), fn ($resp) => dd($resp));
+        $docsEmitidos = tap($response->getBody()->getContents(), fn ($resp) => null);
 
         //$user_id = self::$firmaElectronica->user_id;
         $crawler = new Crawler($docsEmitidos);
@@ -89,7 +106,6 @@ class DteWsClient extends SiiAuthClient
 
             return $tablaDatos;
         } catch (\Exception $e) {
-            debuglog()->info($e);
 
             return [];
         }
@@ -104,7 +120,7 @@ class DteWsClient extends SiiAuthClient
      *
      * @return Crawler|array<array-key, mixed>  ( description_of_the_return_value )
      */
-    public static function listaDocumentosRecibidos(
+    public   function listaDocumentosRecibidos(
         $rut_empresa,
         $FEC_DESDE = '',
         $FEC_HASTA = ''
@@ -116,10 +132,10 @@ class DteWsClient extends SiiAuthClient
         );
         $dte_url = self::getUrl('mipeAdminDocsRcp.cgi');
 
-        self::authOnSii();
-        self::selecionaEmpresa($rut_empresa);
+        $this->authOnSii();
+        $this->selecionaEmpresa($rut_empresa);
 
-        $response = self::sendSiiRequest(
+        $response = $this->sendSiiRequest(
             'GET',
             $dte_url,
             [
@@ -141,7 +157,6 @@ class DteWsClient extends SiiAuthClient
 
         $docsEmitidos = $response->contents;
 
-        $user_id = self::$firmaElectronica->user_id;
         $crawler = new Crawler($docsEmitidos);
 
         try {
@@ -160,7 +175,7 @@ class DteWsClient extends SiiAuthClient
 
             return $tablaDatos;
         } catch (\Exception $e) {
-            debuglog()->info($e->getMessage());
+
 
             return [];
         }
@@ -182,7 +197,7 @@ class DteWsClient extends SiiAuthClient
     ) {
         //kdump(['parseTablaDatos' => $index]);
         $rut_empresa = self::$rut_empresa;
-        $user_id = self::$firmaElectronica->user_id;
+        //  $user_id = self::$firmaElectronica->user_id;
         $tds = $node->filter('td');
         $tipo_documento_glosa = $tds->eq(3)->text();
         $tipo_doc = '00';
@@ -192,29 +207,23 @@ class DteWsClient extends SiiAuthClient
         }
 
         $folio = $tds->eq(4)->text();
-        $rut_contraparte = \App\Models\Empresa::checkAndInsertEmpresa(
-            /*$rut_empresa */
-            $tds->eq(1)->text(),
-            '',
-            /*$razon_social*/
-            $tds->eq(2)->text()
-        );
+        //kdump(            /*$rut_empresa */            $tds->eq(1)->text(),            '',            /*$razon_social*/            $tds->eq(2)->text()        );
         //kdump($tablaHead, $rut_contraparte);
-
+        $rut_contraparte = $tds->eq(1)->text();
         $dte = [
             'rut_emisor'     => 'Receptor' === $tablaHead ? $rut_empresa :
-                $rut_contraparte,
+                $tds->eq(1)->text(),
             'tipo_documento' => (int) $tipo_doc,
             'folio'          => $folio,
         ];
         $id_doc = \implode('_', $dte);
         $dte = \array_merge($dte, [
             'id'           => $id_doc,
-            'user_id'      => $user_id,
+            //    'user_id'      => $user_id,
             'rut_receptor' => 'Receptor' === $tablaHead ? $rut_contraparte :
                 $rut_empresa,
         ]);
-        debuglog()->info($dte);
+
         $dte['fechaEmision'] = $tds->eq(5)->text();
         $dte['mntTotal'] = $tds->eq(6)->text();
         $dte['estado'] = $tds->eq(7)->text();
