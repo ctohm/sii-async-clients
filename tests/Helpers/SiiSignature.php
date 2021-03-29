@@ -8,6 +8,8 @@ namespace Tests\Helpers;
 
 use CTOhm\SiiAsyncClients\RequestClients\Structures\CertificatesObjectInterface;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
+use Tests\Helpers\SignatureNode;
+use Tests\Helpers\CertificatesObject;
 use DOMDocument;
 
 /**
@@ -234,6 +236,92 @@ class SiiSignature implements SiiSignatureInterface
         return \base64_encode($signature);
     }
 
+    public static function staticVerify(
+        $data,
+        $signature,
+        $pub_key,
+        $signature_alg = \OPENSSL_ALGO_SHA1
+    ) {
+        $normalized = \trim(\str_replace(
+            [PHP_EOL, '-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
+            '',
+            $pub_key
+        ));
+        $pub_key = self::normalizePublicKey(
+            $normalized
+        );
+        //dump($pub_key);
+        return 1 === \openssl_verify($data, \base64_decode($signature, true), $pub_key, $signature_alg) ? true : false;
+    }
+
+    /**
+     * Check if document's signature matches this signature instance.
+     *
+     * @param string $xml_data The xml data
+     * @param null|string $tag      The tag
+     * @param bool   $full     if true, return array of results
+     * @param mixed  $verbose
+     *
+     * @return array{0: bool, 1: bool, 2: false|string, 3: string}
+     */
+    public static function verifyXMLVerbose(
+        $xml_data,
+        $tag = null,
+        $verbose = false
+    ) {
+        $doc = new DOMDocument();
+        $doc->loadXML($xml_data);
+
+        // preparar datos que se verificarán
+        $SignaturesElements = $doc->documentElement->getElementsByTagName('Signature');
+        $Signature = $doc->documentElement->removeChild(
+            $SignaturesElements->item(
+                $SignaturesElements->length - 1
+            )
+        );
+
+        $SignedInfo = $Signature->getElementsByTagName('SignedInfo')->item(0);
+        $SignedInfo->setAttribute('xmlns', $Signature->getAttribute('xmlns'));
+        $signed_info = $doc->saveHTML($SignedInfo);
+
+        $SignatureValue = self::getFirstNodeValue(
+            $Signature,
+            'SignatureValue'
+        );
+        $SignatureValue = \str_replace([' ', \PHP_EOL], '', $SignatureValue);
+        $pub_key = self::getFirstNodeValue(
+            $Signature,
+            'X509Certificate'
+        );
+        $pub_key = \str_replace([' ', \PHP_EOL], '', $pub_key);
+
+        $DigestValue = self::getFirstNodeValue(
+            $Signature,
+            'DigestValue'
+        );
+
+        $valid_public_key = self::staticVerify(
+            $signed_info,
+            $SignatureValue,
+            $pub_key
+        );
+
+        if ($tag) {
+            $elementTag = $doc->documentElement->getElementsByTagName($tag);
+            $C14NdataToBeSigned = $elementTag->item(0)->C14N();
+        } else {
+            $C14NdataToBeSigned = $doc->C14N();
+        }
+        $ComputedDigest = \base64_encode(\sha1($C14NdataToBeSigned, true));
+
+        $matching_digests = $DigestValue === $ComputedDigest;
+
+        return [
+            'valid_public_key' => $valid_public_key,
+            'matching_digests' => $matching_digests,
+
+        ];
+    }
     /**
      * verifica la firma digital de datos.
      *
@@ -254,7 +342,7 @@ class SiiSignature implements SiiSignatureInterface
             $pub_key = $this->public_key;
         }
 
-        $pub_key = $this->_normalizeCert($pub_key);
+        $pub_key = $this->normalizePublicKey($pub_key);
         //dump($pub_key);
         return 1 === \openssl_verify($data, \base64_decode($signature, true), $pub_key, $signature_alg) ? true : false;
     }
@@ -269,7 +357,7 @@ class SiiSignature implements SiiSignatureInterface
         if (\is_string($referenceId) && 0 !== \mb_strpos($referenceId, '#')) {
             $referenceId = '#' . $referenceId;
         }
-        $tempDocCopy = new SiiDOMDocument();
+        $tempDocCopy = new DOMDocument();
         $tempDocCopy->loadXML($doc->saveXML());
 
         $signatureNode = new SignatureNode($xmlns_xsi, $referenceId);
@@ -331,7 +419,7 @@ class SiiSignature implements SiiSignatureInterface
      *
      * @return string Certificado normalizado
      */
-    private function _normalizeCert($cert)
+    public static function normalizePublicKey($cert)
     {
         if (false === \mb_strpos($cert, '-----BEGIN CERTIFICATE-----')) {
             $body = \trim($cert);

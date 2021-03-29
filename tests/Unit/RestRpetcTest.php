@@ -84,11 +84,11 @@ it(
         $infoDetalle = $this->restClient->getDetalleCesionRTC($rutEmisor, $dte_id);
 
         // dump($infoDetalle);
-        expect($infoDetalle)->toBeArray();
-        $this->assertArrayHasKey('tenedor_vigente', $infoDetalle);
-        $this->assertArrayHasKey('fecha_ultima_anotacion', $infoDetalle);
-        $this->assertArrayHasKey('declaracion_jurada', $infoDetalle);
-        $this->assertArrayHasKey('clave_de_acceso', $infoDetalle);
+        expect($infoDetalle)->toBeArray()
+            ->toHaveKey('tenedor_vigente')
+            ->toHaveKey('fecha_ultima_anotacion')
+            ->toHaveKey('declaracion_jurada')
+            ->toHaveKey('clave_de_acceso');
     }
 )
     ->group('getAecDetalle')

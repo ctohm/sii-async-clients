@@ -106,7 +106,6 @@ class DteWsClient extends SiiAuthClient
 
             return $tablaDatos;
         } catch (\Exception $e) {
-
             return [];
         }
     }
@@ -120,7 +119,7 @@ class DteWsClient extends SiiAuthClient
      *
      * @return Crawler|array<array-key, mixed>  ( description_of_the_return_value )
      */
-    public   function listaDocumentosRecibidos(
+    public function listaDocumentosRecibidos(
         $rut_empresa,
         $FEC_DESDE = '',
         $FEC_HASTA = ''
@@ -175,8 +174,6 @@ class DteWsClient extends SiiAuthClient
 
             return $tablaDatos;
         } catch (\Exception $e) {
-
-
             return [];
         }
     }

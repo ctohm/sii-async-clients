@@ -29,25 +29,27 @@ beforeEach(function (): void {
 it(
     'Can retrieve testGetEstDte for a given DTE',
     function ($dte_id): void {
-    $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
+        $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
 
-    $siiToken = $this->siiToken;
-    /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
-    $soapClient = $this->soapClient;
+        $siiToken = $this->siiToken;
+        /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
+        $soapClient = $this->soapClient;
 
-    $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
-    $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
-    $testGetEstDte = $soapClient->getEstadoDte($estDteArgs)->then(function ($estDteResult): void {
-        $this->assertArrayHasKey('estado', $estDteResult);
-        $this->assertArrayHasKey('glosaEstado', $estDteResult);
-        $this->assertArrayHasKey('errCode', $estDteResult);
-        $this->assertArrayHasKey('glosaErr', $estDteResult);
-        $this->assertArrayHasKey('numAtencion', $estDteResult);
-    });
+        $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
+        $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
+        $testGetEstDte = $soapClient->getEstadoDte($estDteArgs)->then(function ($estDteResult): void {
+            expect($estDteResult)
 
-    $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
-    $testGetEstDte->wait();
-}
+                ->toHaveKey('estado')
+                ->toHaveKey('glosaEstado')
+                ->toHaveKey('errCode')
+                ->toHaveKey('glosaErr')
+                ->toHaveKey('numAtencion');
+        });
+
+        $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
+        $testGetEstDte->wait();
+    }
 )->with(['76986660-4_34_135', '76986660-4_34_136']);
 
 /**
@@ -56,38 +58,39 @@ it(
 it(
     'Can retrieve testGetEstDteAv for a given DTE',
     function ($dte_id): void {
-    $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)));
+        $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)));
 
-    $siiToken = $this->siiToken;
-    /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
-    $soapClient = $this->soapClient;
-    $xml_string = $this->storage->get(\sprintf('DTE_%s.xml', $dte_id));
-    $SignatureValue = Str::of($xml_string)->between('<SignatureValue>', '</SignatureValue>')
-        ->replace("\r\n", "\n")->replace("\n", '')
-        ->__toString();
+        $siiToken = $this->siiToken;
+        /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
+        $soapClient = $this->soapClient;
+        $xml_string = $this->storage->get(\sprintf('DTE_%s.xml', $dte_id));
+        $SignatureValue = Str::of($xml_string)->between('<SignatureValue>', '</SignatureValue>')
+            ->replace("\r\n", "\n")->replace("\n", '')
+            ->__toString();
 
-    $estDteAvArgs = [
-        'rutEmisor' => $dteInfo->rutEmisor,
-        'tipoDoc' => $dteInfo->tipoDoc,
-        'folio' => $dteInfo->folio,
-        'rutReceptor' => $dteInfo->rutReceptor,
-        'montoTotal' => $dteInfo->montoTotal,
-        'fechaEmision' => $dteInfo->fechaEmision,
-        'firmaDte' => $SignatureValue,
-        'siiToken' => $siiToken,
-    ];
+        $estDteAvArgs = [
+            'rutEmisor' => $dteInfo->rutEmisor,
+            'tipoDoc' => $dteInfo->tipoDoc,
+            'folio' => $dteInfo->folio,
+            'rutReceptor' => $dteInfo->rutReceptor,
+            'montoTotal' => $dteInfo->montoTotal,
+            'fechaEmision' => $dteInfo->fechaEmision,
+            'firmaDte' => $SignatureValue,
+            'siiToken' => $siiToken,
+        ];
 
-    $estDteArgs = new EstadoDteAvParameters($estDteAvArgs);
-    $testGetEstDte = $soapClient->getEstadoDteAv($estDteArgs)->then(function ($estDteResult): void {
-        $this->assertArrayHasKey('estado', $estDteResult);
-        $this->assertArrayHasKey('recibido', $estDteResult);
-        $this->assertArrayHasKey('glosa', $estDteResult);
-        $this->assertArrayHasKey('trackid', $estDteResult);
+        $estDteArgs = new EstadoDteAvParameters($estDteAvArgs);
+        $testGetEstDte = $soapClient->getEstadoDteAv($estDteArgs)->then(function ($estDteResult): void {
+            expect($estDteResult)
 
-        $this->assertArrayHasKey('numatencion', $estDteResult);
-    });
+                ->toHaveKey('estado')
+                ->toHaveKey('recibido')
+                ->toHaveKey('glosa')
+                ->toHaveKey('trackid')
+                ->toHaveKey('numatencion');
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
-    $testGetEstDte->wait();
-}
+        $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
+        $testGetEstDte->wait();
+    }
 )->with(['76986660-4_34_135', '76986660-4_34_136']);

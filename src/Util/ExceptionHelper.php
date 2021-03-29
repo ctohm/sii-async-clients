@@ -73,7 +73,7 @@ final class ExceptionHelper
     /**
      * @var int
      */
-    public static $maxTraceLength = 16;
+    public static $maxTraceLength = 24;
 
     /**
      * @var null|bool
@@ -285,25 +285,7 @@ final class ExceptionHelper
 
         if ($includeStacktraces) {
             $trace = $e->getTrace();
-
-            foreach ($trace as $index => $frame) {
-                if ($index > self::$maxTraceLength) {
-                    break;
-                }
-
-                if (isset($frame['file'])) {
-                    $data['trace'][] = \str_replace(base_path(), '', $frame['file']) . ':' . $frame['line'];
-                } elseif (isset($frame['function']) && '{closure}' === $frame['function']) {
-                    // We should again normalize the frames, because it might contain invalid items
-                    $data['trace'][] = $frame['function'];
-                } elseif (\is_string($frame)) {
-                    $data['trace'][] = \str_replace(base_path(), '', $frame);
-                } else {
-                    // We should again normalize the frames, because it might contain invalid items
-                    $frame = self::normalize($frame, $depth);
-                    $data['trace'][] = $frame;
-                }
-            }
+            $data['trace']  = self::normalizeBackTrace($trace, $depth, base_path());
         }
 
         if ($depth >= self::$maxNormalizationDepth) {
@@ -317,7 +299,31 @@ final class ExceptionHelper
 
         return \array_merge(['thrown_at' => \microtime(true)], $data);
     }
+    public static function normalizeBackTrace(array $trace, int $depth = 1, string $base_path = '')
+    {
+        $traceArray = [];
 
+        foreach ($trace as $index => $frame) {
+            if ($index > self::$maxTraceLength) {
+                break;
+            }
+
+            if (isset($frame['file'])) {
+                $traceArray[] = \str_replace($base_path, '', $frame['file']) . ':' . $frame['line'];
+            } elseif (isset($frame['function']) && '{closure}' === $frame['function']) {
+                // We should again normalize the frames, because it might contain invalid items
+                $traceArray[] = $frame['function'];
+            } elseif (\is_string($frame)) {
+                $traceArray[] = \str_replace($base_path, '', $frame);
+            } else {
+                // We should again normalize the frames, because it might contain invalid items
+                $frame = self::normalize($frame, $depth);
+                $traceArray[] = $frame;
+            }
+        }
+
+        return $traceArray;
+    }
     /**
      * Gets a very simplified exception message.
      *

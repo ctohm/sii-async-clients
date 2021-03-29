@@ -7,6 +7,8 @@
 namespace Tests\Helpers;
 
 use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
+use DOMDocument;
+use Illuminate\Support\Str;
 
 /**
  * This interface describes the structure of the response
@@ -23,7 +25,6 @@ class SignatureNode implements \JsonSerializable
      * { var_description }.
      *
      * @var SignedInfo
-     * @Annotation\Type("CTOhm\SiiAsyncClients\RequestClients\XMLDsig\SignedInfo")
      */
     public $SignedInfo;
 
@@ -185,7 +186,7 @@ class SignatureNode implements \JsonSerializable
         if (null === $this->DOMElement) {
             $this->ownerDocument = $this->ownerDocument ?? $doc;
             $this->DOMElement = $this->ownerDocument->importNode(
-                (new SiiDOMDocument())->generate($this->jsonSerialize())->documentElement,
+                $this->ArrayToDOMElement($this->jsonSerialize())->documentElement,
                 true
             );
         }
@@ -193,6 +194,59 @@ class SignatureNode implements \JsonSerializable
         return $this->DOMElement;
     }
 
+    /**
+     * { function_description }.
+     *
+     * @param array<array-key, mixed>      $data      The data
+     * @param array<array-key, mixed>|null $namespace The namespace to generate the XML (URI and prefix)
+     * @param null|\DOMElement             $parent    parent element of the XML. Null if we want to generate the root
+     *
+     * @return static
+     */
+    public static function ArrayToDOMElement(array $data, ?\DOMElement &$parent = null)
+    {
+
+
+        if (null === $parent) {
+            $parent = new DOMDocument();
+            $ownerDocument = $parent;
+        } else {
+            $ownerDocument =   $parent->ownerDocument;
+        }
+
+        foreach ($data as $key => $value) {
+            if ($value === false) {
+                continue;
+            }
+            if ('@attributes' === $key) {
+                foreach ($value as $attr => $val) {
+                    if (false !== $val) {
+                        $parent->setAttribute($attr, $val);
+                    }
+                }
+            } elseif (\is_array($value) && !empty($value)) {
+                $keys = \array_keys($value);
+
+                if (!\is_int($keys[0])) {
+                    $value = [
+                        $value,
+                    ];
+                }
+
+                foreach ($value as $childData) {
+                    $Node = $ownerDocument->createElement($key);
+                    $parent->appendChild($Node);
+
+                    self::ArrayToDOMElement($childData, $Node);
+                }
+            } else {
+                $Node = $ownerDocument->createElement($key, (Str::of($value)->entitiesToChars())->isoToUTF8());
+                $parent->appendChild($Node);
+            }
+        }
+
+        return $ownerDocument;
+    }
     /**
      * @return false|string
      */
@@ -236,13 +290,13 @@ class SignatureNode implements \JsonSerializable
     /**
      * Sets the owner document.
      *
-     * @param SiiDOMDocument $ownerDocument The owner document
+     * @param DOMDocument $ownerDocument The owner document
      *
      * @throws \InvalidArgumentException (description)
      *
      * @return static ( description_of_the_return_value )
      */
-    public function setOwnerDocument(SiiDOMDocument $ownerDocument): self
+    public function setOwnerDocument(DOMDocument $ownerDocument): self
     {
         if (!$ownerDocument->documentElement) {
             throw new \InvalidArgumentException(ExceptionHelper::get(ExceptionHelper::DOCUMENT_IS_DAMAGED_OR_INVALID));

@@ -18,7 +18,7 @@
     "config:localhost": "make clean_env APP_ENV=local && php artisan config:list database.connections",
     "config:dev": "make clean_env APP_ENV=development && php artisan config:list database.connections",
     "lint": "eslint --ext .js,.vue resources/js",
-    "csfixer":"tools/phpcbf  --standard=.phpcs.xml src/* && vendor/bin/php-cs-fixer fix --config=.php_cs.php",
+    "csfixer":"tools/phpcbf  --standard=.phpcs.xml src/* tests/* && vendor/bin/php-cs-fixer fix --config=.php_cs.php",
     "require_checker":"vendor/bin/composer-require-checker --config-file=composer-require-checker.json",
 
     "prepare": "husky install"

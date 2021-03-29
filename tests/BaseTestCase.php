@@ -8,11 +8,15 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use ComposerRequireChecker\Cli\Application;
 use CTOhm\SiiAsyncClients\Providers\SiiClientsProvider;
+use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
+use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Stringable;
 use Orchestra\Testbench\Console\Kernel;
 use Orchestra\Testbench\TestCase;
+use PHPUnit\Framework\ExecutionOrderDependency;
 use Tests\Helpers\SiiSignature;
 
 /**
@@ -21,22 +25,47 @@ use Tests\Helpers\SiiSignature;
  */
 class BaseTestCase extends TestCase
 {
+    use CreatesApplication;
     public function kdump(...$args): void
     {
         kdump(...$args);
     }
+    public static string $name = __CLASS__;
+    public static int $instances = 0;
 
-    /*
-        |--------------------------------------------------------------------------
-        | Bootstrap The Test Environment
-        |--------------------------------------------------------------------------
-        |
-        | You may specify console commands that execute once before your test is
-        | run. You are free to add your own additional commands or logic into
-        | this file as needed in order to help your test suite run quicker.
-        |
+
+
+    /**
+     * @param int|string $dataName
+     *
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
      */
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        $app = $this->createApplication();
 
+        parent::__construct($name, $data, $dataName);
+        if (self::$instances === 0) {
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 20);
+            dump(ExceptionHelper::normalizeBackTrace($backtrace));
+        }
+        self::$instances++;
+        self::$name = $this->getName(true);
+        /*kdump([
+            'name' =>   self::$name,
+            //'data' => $data,
+            //'dataName' => $dataName,
+            'suffix' => $this->suffix
+        ]);*/
+        //  echo  sprintf('%s %s', self::$instances, self::$name) . PHP_EOL;
+    }
+
+    /**
+     * This method is called before the first test of this test class is run.
+     */
+    public static function setUpBeforeClass(): void
+    {
+    }
     public function executeBeforeFirstTest(): void
     {
         $console = $this->app->make(Kernel::class);
@@ -50,7 +79,10 @@ class BaseTestCase extends TestCase
             $console->call($command);
         }
     }
-
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
     public function executeAfterLastTest(): void
     {
         \array_map('unlink', \glob('bootstrap/cache/*.phpunit.php'));
@@ -58,11 +90,10 @@ class BaseTestCase extends TestCase
 
     protected function getEnvironmentSetUp($app): void
     {
-        $app->setBasePath(__DIR__ . '/../');
-
-        $app->useStoragePath(__DIR__ . '/../storage');
+        $basePath = dirname(__DIR__);
+        $app->setBasePath($basePath)
+            ->useStoragePath($basePath . DIRECTORY_SEPARATOR . 'storage');
         Storage::persistentFake('testing');
-
         $app->loadEnvironmentFrom($app->environmentFilePath());
         // Setup default database to use sqlite :memory:
 
@@ -85,11 +116,17 @@ class BaseTestCase extends TestCase
 
             return new SiiSignature($pfxData);
         });
+
+
+
+
+
         $this->loadMacros();
     }
 
     protected function getPackageProviders($app)
     {
+
         return [SiiClientsProvider::class];
     }
 

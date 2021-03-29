@@ -6,6 +6,7 @@
 
 namespace Tests\Helpers;
 
+use DOMDocument;
 use Illuminate\Support\Str;
 
 /*
@@ -49,70 +50,7 @@ class SiiDOMDocument extends \DOMDocument
         $this->preserveWhiteSpace = $preserveWhiteSpace;
     }
 
-    /**
-     * { function_description }.
-     *
-     * @param array<array-key, mixed>      $data      The data
-     * @param array<array-key, mixed>|null $namespace The namespace to generate the XML (URI and prefix)
-     * @param null|\DOMElement             $parent    parent element of the XML. Null if we want to generate the root
-     *
-     * @return static
-     */
-    public function generate(array $data, ?array $namespace = null, ?\DOMElement &$parent = null)
-    {
-        if (null !== $namespace) {
-            throw new \InvalidArgumentException('Namespaces are not suported ' . \json_encode($namespace));
-        }
 
-        if (null === $parent) {
-            $parent = &$this;
-        }
-
-        foreach ($data as $key => $value) {
-            if ('@attributes' === $key) {
-                if (false !== $value) {
-                    foreach ($value as $attr => $val) {
-                        if (false !== $val) {
-                            $parent->setAttribute($attr, $val);
-                        }
-                    }
-                }
-            } elseif ('@value' === $key) {
-                $parent->nodeValue = Str::of($value)->entitiesToChars();
-            } else {
-                if (\is_array($value)) {
-                    if (!empty($value)) {
-                        $keys = \array_keys($value);
-
-                        if (!\is_int($keys[0])) {
-                            $value = [
-                                $value,
-                            ];
-                        }
-
-                        foreach ($value as $value2) {
-                            $Node = $this->createElement($key);
-                            $parent->appendChild($Node);
-
-                            $this->generate($value2, $namespace, $Node);
-                        }
-                    }
-                } else {
-                    if (\is_object($value) && $value instanceof \DOMElement) {
-                        $Node = $this->importNode($value, true);
-                        $parent->appendChild($Node);
-                    } else {
-                        if (false !== $value) {
-                            $Node = $this->createElement($key, (Str::of($value)->entitiesToChars())->isoToUTF8());
-                            $parent->appendChild($Node);
-                        }
-                    }
-                }
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Carga un string XML en el Objeto desde un string.
@@ -248,8 +186,7 @@ class SiiDOMDocument extends \DOMDocument
 
                 // En otro caso para rehidratar se requiere meter el texto en una propiedad @value
                 $xmlArray['@value'] = $textContent;
-            } elseif (
-                $child instanceof \DOMElement && $childTagName = $child->tagName
+            } elseif ($child instanceof \DOMElement && $childTagName = $child->tagName
                 // &&
             ) {
                 if (\in_array($child->tagName, $skip_tagnames, true)) {

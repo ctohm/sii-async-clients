@@ -33,28 +33,28 @@ beforeEach(function (): void {
 it(
     'Can retrieve listarEventosHistDoc for a given DTE',
     function ($dte_id): void {
-    [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
+        [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
-    $siiToken = $this->siiToken;
-    $soapClient = $this->soapClient;
+        $siiToken = $this->siiToken;
+        $soapClient = $this->soapClient;
 
-    $requestPayload = new EventosHistoricosParameters([
-        'rutEmisor' => $rutEmisor,
-        'tipoDoc' => (int) $tipoDoc,
-        'folio' => (int) $folio,
-    ]);
-    $promise = $soapClient->listarEventosHistDoc($requestPayload)->then(function ($result): void {
-        if (\array_key_exists('listEvenHistDoc', $result)) {
-            foreach ($result['listEvenHistDoc'] as $evento) {
-                //$this->kdump($evento->jsonSerialize());
-                $this->assertInstanceOf(EventoHistoricoInstance::class, $evento);
+        $requestPayload = new EventosHistoricosParameters([
+            'rutEmisor' => $rutEmisor,
+            'tipoDoc' => (int) $tipoDoc,
+            'folio' => (int) $folio,
+        ]);
+        $promise = $soapClient->listarEventosHistDoc($requestPayload)->then(function ($result): void {
+            if (\array_key_exists('listEvenHistDoc', $result)) {
+                foreach ($result['listEvenHistDoc'] as $evento) {
+                    //$this->kdump($evento->jsonSerialize());
+                    $this->assertInstanceOf(EventoHistoricoInstance::class, $evento);
+                }
             }
-        }
-    });
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $promise);
-    $promise->wait();
-}
+        expect($promise)->toBeInstanceOf(PromiseInterface::class);
+        $promise->wait();
+    }
 )->with(['76986660-4_34_95']);
 /**
  * A basic test example.
@@ -62,21 +62,21 @@ it(
 it(
     'Can retrieve consultarDocDteCedible for a given DTE',
     function ($dte_id): void {
-    [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
+        [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
-    $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
+        $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
 
-    $siiToken = $this->siiToken;
-    $soapClient = $this->soapClient;
+        $siiToken = $this->siiToken;
+        $soapClient = $this->soapClient;
 
-    $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
-    $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
-    $promise = $soapClient->consultarDocDteCedible($estDteArgs)->then(function ($result): void {
-        $this->assertArrayHasKey('codResp', $result);
-        $this->assertArrayHasKey('descResp', $result);
-    });
+        $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
+        $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
+        $promise = $soapClient->consultarDocDteCedible($estDteArgs)->then(function ($result): void {
+            $this->assertArrayHasKey('codResp', $result);
+            $this->assertArrayHasKey('descResp', $result);
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $promise);
-    $promise->wait();
-}
+        expect($promise)->toBeInstanceOf(PromiseInterface::class);
+        $promise->wait();
+    }
 )->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);

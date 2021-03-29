@@ -28,23 +28,23 @@ beforeEach(function (): void {
 it(
     'Can retrieve testGetEstadoCesion for a given DTE',
     function ($dte_id): void {
-    $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
+        $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
 
-    $siiToken = $this->siiToken;
-    $soapClient = $this->soapClient;
+        $siiToken = $this->siiToken;
+        $soapClient = $this->soapClient;
 
-    $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
+        $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
 
-    $estCesionArgs = new EstadoCesionParameters($dteInfoWithToken);
-    $estCesionResult = $soapClient->getEstadoCesion($estCesionArgs)->then(function ($result): void {
-        //  $this->assertArrayHasKey("estado", $result);
-        $this->assertArrayHasKey('glosa', $result);
-        $this->assertArrayHasKey('resp_body', $result);
-    });
+        $estCesionArgs = new EstadoCesionParameters($dteInfoWithToken);
+        $estCesionResult = $soapClient->getEstadoCesion($estCesionArgs)->then(function ($result): void {
+            //  $this->assertArrayHasKey("estado", $result);
+            $this->assertArrayHasKey('glosa', $result);
+            $this->assertArrayHasKey('resp_body', $result);
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $estCesionResult);
-    $estCesionResult->wait();
-}
+        $this->assertInstanceOf(PromiseInterface::class, $estCesionResult);
+        $estCesionResult->wait();
+    }
 )->with(['76986660-4_34_95', '76986660-4_34_106', '76986660-4_34_115']);
 
 //getEstCesion
@@ -56,41 +56,41 @@ it(
 it(
     'Can retrieve getEstadoCesionRelacion for a given DTE',
     function ($dte_id): void {
-    [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
+        [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
-    $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
-    $siiToken = $this->siiToken;
-    $soapClient = $this->soapClient;
+        $dteInfo = \json_decode($this->storage->get(\sprintf('dteInfo_%s.json', $dte_id)), true);
+        $siiToken = $this->siiToken;
+        $soapClient = $this->soapClient;
 
-    $array_cesion_relacion = \array_merge($dteInfo, ['siiToken' => $siiToken, 'rutEmpresa' => $rutEmisor]);
-    $estCesionRelacionArgs = new EstadoCesionRelacionParameters($array_cesion_relacion);
+        $array_cesion_relacion = \array_merge($dteInfo, ['siiToken' => $siiToken, 'rutEmpresa' => $rutEmisor]);
+        $estCesionRelacionArgs = new EstadoCesionRelacionParameters($array_cesion_relacion);
 
-    $promise = $soapClient->getEstadoCesionRelacion($estCesionRelacionArgs)->then(function ($result): void {
-        $this->assertArrayHasKey('estado', $result);
-        $this->assertArrayHasKey('rut_tenedor', $result);
-        $this->assertArrayHasKey('fecha_ult_anot', $result);
-    });
+        $promise = $soapClient->getEstadoCesionRelacion($estCesionRelacionArgs)->then(function ($result): void {
+            $this->assertArrayHasKey('estado', $result);
+            $this->assertArrayHasKey('rut_tenedor', $result);
+            $this->assertArrayHasKey('fecha_ult_anot', $result);
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $promise);
-    $promise->wait();
-}
-)->with(['76986660-4_34_95', '76986660-4_34_106']);
+        expect($promise)->toBeInstanceOf(PromiseInterface::class);
+        $promise->wait();
+    }
+)->with(['76986660-4_34_95', ['76986660-4_34_106', true]]);
 it(
     'Can retrieve AEC getEstadoEnvio from track_id',
     function ($track_id): void {
-    /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
-    $soapClient = $this->soapClient;
-    $siiToken = $this->siiToken;
+        /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider $soapClient */
+        $soapClient = $this->soapClient;
+        $siiToken = $this->siiToken;
 
-    $promise = $soapClient->getEstEnvio($siiToken, $track_id)->then(function ($result) use ($track_id): void {
-        $this->assertArrayHasKey('estado', $result);
-        $this->assertArrayHasKey('trackid', $result);
-        $this->assertArrayHasKey('desc_estado', $result);
-        $this->assertArrayHasKey('estado_envio', $result);
-        expect($result['trackid'])->toEqual($track_id);
-    });
+        $promise = $soapClient->getEstEnvio($siiToken, $track_id)->then(function ($result) use ($track_id): void {
+            $this->assertArrayHasKey('estado', $result);
+            $this->assertArrayHasKey('trackid', $result);
+            $this->assertArrayHasKey('desc_estado', $result);
+            $this->assertArrayHasKey('estado_envio', $result);
+            expect($result['trackid'])->toEqual($track_id);
+        });
 
-    $this->assertInstanceOf(PromiseInterface::class, $promise);
-    $promise->wait();
-}
+        expect($promise)->toBeInstanceOf(PromiseInterface::class);
+        $promise->wait();
+    }
 )->with(['5131325004']);

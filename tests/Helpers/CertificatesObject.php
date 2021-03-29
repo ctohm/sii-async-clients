@@ -33,19 +33,19 @@ class CertificatesObject implements CertificatesObjectInterface, JsonSerializabl
      *
      * @var resource
      */
-    private  $certFile;
+    private $certFile;
     /**
      * Resource pointing to a temporary file
      *
      * @var resource
      */
-    private  $pkeyFile;
+    private $pkeyFile;
     /**
      * Resource pointing to a temporary file
      *
      * @var resource
      */
-    private  $caFile;
+    private $caFile;
 
     /**
      * Undocumented function.
@@ -67,7 +67,7 @@ class CertificatesObject implements CertificatesObjectInterface, JsonSerializabl
 
         if ($this->extracerts) {
             $this->caFile =  \tmpfile();
-            foreach ($this->extracerts  as $extracert) {
+            foreach ($this->extracerts as $extracert) {
                 \fwrite($this->caFile, $extracert);
             }
         }
@@ -94,7 +94,7 @@ class CertificatesObject implements CertificatesObjectInterface, JsonSerializabl
      *
      * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
      */
-    public   function getPaths(): array
+    public function getPaths(): array
     {
         if (count($this->certpaths) === 0) {
             $this->certpaths = [

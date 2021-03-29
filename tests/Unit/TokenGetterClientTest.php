@@ -29,7 +29,7 @@ it(
     $getTokenRequest = $soapClient->getTokenRequest();
 
     expect($getTokenRequest)->toBeInstanceOf(DOMDocument::class);
-}
+    }
 );
 
 /**
@@ -42,5 +42,5 @@ it(
 
     $signedTokenRequest = $soapClient->getSignedTokenRequest();
     expect($signedTokenRequest)->toContain('<getToken>');
-}
+    }
 );
