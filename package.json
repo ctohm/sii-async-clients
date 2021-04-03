@@ -1,6 +1,6 @@
 {
   "name": "@ctohm/sii-async-clients",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "sii-async-clients",
   "license": "MIT",
   "publishConfig": {
