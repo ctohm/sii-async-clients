@@ -16,7 +16,8 @@
         "symfony/dom-crawler": "^5.1",
         
         "meng-tian/php-async-soap": "^1.0",
-        "meng-tian/soap-http-binding": "^0.2.3"
+        "meng-tian/soap-http-binding": "^0.2.3",
+        "wsdltophp/packagegenerator": "^3.3"
     },
     "require-dev": {
         "emielmolenaar/phpcs-laravel": "^2.0",
@@ -43,7 +44,7 @@
                 "CTOhm\\SiiAsyncClients\\Providers\\SiiClientsProvider"
             ]
         },
-        "version": "0.3.0"
+        "version": "0.4.0"
     },
     "autoload": {
         "psr-4": {

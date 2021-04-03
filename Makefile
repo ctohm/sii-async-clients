@@ -81,7 +81,19 @@ check_executable_or_exit_with_phive:
 
 tag: all_checks update_version csfixer tag_and_push  
 
+tag_and_push:
+	@git commit -a -m "Creating Tag v$(v) at $(DATENOW) - $(m)" ;\
+	git push ;\
+	if [[ "$(CURRENT_BRANCH)" != "master" ]]; then \
+		git checkout master ;\
+		git merge $(CURRENT_BRANCH) ;\
+	fi
 
+	git tag v$(v) ;\
+	git push ;\
+	git push --tags ;\
+	git checkout $(CURRENT_BRANCH)
+ 
 lint:
 	$(eval executable:=vendor/bin/parallel-lint )
 	$(eval package_name:=php-parallel-lint/php-parallel-lint )
@@ -152,8 +164,8 @@ psalm:
 phpstan:
 	@yarn phpstan	
 
-all_checks: lint  phpcs  csfixer phpcbf psalm phpstan composer_unused
-fixers:  lint csfixer psalm phpstan phpcs composer_unused
+all_checks: lint  phpcs  csfixer phpcbf composer_unused psalm phpstan 
+fixers:  lint csfixer composer_unused psalm phpstan phpcs 
 
 
 .PHONY: composer_unused
@@ -161,7 +173,7 @@ composer_unused: vendor ## Runs a dependency analysis with maglnet/composer-requ
 		$(eval executable:=tools/composer-unused)
 		$(eval package_name:=composer-unused )
 		@${MAKE} check_executable_or_exit_with_phive executable=$(executable) package_name=$(package_name) --no-print-directory
-		@$(executable) --excludePackage=nunomaduro/laravel-console-dusk
+		@$(executable) --excludePackage=wsdltophp/packagegenerator
 
 
 
