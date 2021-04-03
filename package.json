@@ -38,17 +38,15 @@
     "src/*.php": "yarn csfixer"
   },
   "devDependencies": {
-    "eslint": "^7.21.0",
-    "husky": "^5.1.3",
-    "lint-staged": "^10.5.4",
-    "prettier": "^2.2.1"
-  },
-  "dependencies": {
     "babel-eslint": "^10.1.0",
     "dotenv": "^8.2.0",
+    "eslint": "^7.21.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-security": "^1.4.0",
+    "husky": "^5.1.3",
+    "lint-staged": "^10.5.4",
+    "prettier": "^2.2.1",
     "tslib": "^2.1.0",
     "tslog": "^3.0.2",
     "typescript": "^4.0.2"

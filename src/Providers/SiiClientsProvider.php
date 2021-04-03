@@ -20,6 +20,8 @@ use GuzzleHttp\Handler\CurlMultiHandler;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use InvalidArgumentException;
 
 final class SiiClientsProvider extends ServiceProvider
@@ -89,6 +91,112 @@ final class SiiClientsProvider extends ServiceProvider
             }
 
             return new DteWsClient($siiSignature, $clientOptions);
+        });
+        Stringable::macro('detectEncoding', function (): string {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::detectEncoding($stringable->value);
+        });
+        Str::macro('detectEncoding', static function (string $value): string {
+            return \mb_detect_encoding($value, [
+                'HTML-ENTITIES',     'WINDOWS-1252', 'us-ascii', 'ASCII', 'UTF-8', 'ISO-8859-1',
+            ], true);
+        });
+
+        /*
+         * * example: betweenInclusive('<person><name  id="1" >ctohm</name></person>',   '<name','</person>') returns '<name  id="1" >ctohm</name></person>'
+         */
+        Stringable::macro('betweenInclusive', function (string $from, string $to): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            if (!$stringable->containsAll([$from, $to])) {
+                //kdd(['string does not contain both ' => [$from, $to, $stringable->__toString()]]);
+                return $stringable;
+            }
+
+            return $stringable->after($from)->beforeLast($to)->prepend($from)->append($to);
+        });
+        Str::macro('betweenInclusive', static function (string $value, string $from, string $to): Stringable {
+            return Str::of($value)->betweenInclusive($from, $to);
+        });
+        Stringable::macro('binToHex', function (): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::of(\bin2hex($stringable->__toString()));
+        });
+        Stringable::macro('hexToBin', function (): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::of(\hex2bin($stringable->__toString()));
+        });
+        /*
+         *
+         *
+         *
+         * *example: betweenTags('<person><name id="1" >ctohm</name></person>', 'name') returns '<name  id="1" >ctohm</name>'
+         */
+        Stringable::macro('betweenTags', function (string $tag): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            $startingTag = $stringable->match('/<' . $tag . '[\s>]/');
+
+            return $stringable->binToHex()
+                ->betweenInclusive(
+                    $startingTag->binToHex()->__toString(),
+                    \bin2hex(\sprintf('</%s>', $tag))
+                )->hexToBin();
+
+            return Str::of(\hex2bin(Str::of(\bin2hex($stringable->__toString()))
+                ->betweenInclusive(
+                    \bin2hex($startingTag->__toString()),
+                    \bin2hex(\sprintf('</%s>', $tag))
+                )->__toString()));
+        });
+        Str::macro('betweenTags', static function (string $value, string $tag): Stringable {
+            return Str::of($value)->betweenTags($tag);
+        });
+        Stringable::macro('base64Encode', function (): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::of(\base64_encode($stringable->value));
+        });
+        Stringable::macro('base64Decode', function (): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::of(\base64_decode($stringable->value, true));
+        });
+        Stringable::macro('sha1', function (): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            return Str::of(\sha1($stringable->value, true));
+        });
+
+        /*
+         *
+         *
+         * * example: insideTags('<person><name  id="1" >ctohm</name></person>', 'name') returns 'ctohm'
+         */
+        Stringable::macro('insideTags', function (string $tag): Stringable {
+            /** @var Stringable $stringable */
+            $stringable = $this;
+
+            $startingTag = $stringable->match('/<' . $tag . '[\s>]/');
+
+            return $stringable->after($startingTag)->before(\sprintf('</%s>', $tag))->between(
+                \sprintf('>', $tag),
+                \sprintf('</', $tag)
+            );
+        });
+        Str::macro('insideTags', static function (string $value, string $tag): Stringable {
+            return Str::of($value)->insideTags($tag);
         });
     }
 
