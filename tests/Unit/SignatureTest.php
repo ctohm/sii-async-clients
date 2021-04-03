@@ -9,8 +9,6 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use CTOhm\SiiAsyncClients\RequestClients\SoapProvider;
-use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
-
 use Tests\Helpers\SiiSignature;
 
 /**
@@ -19,8 +17,6 @@ use Tests\Helpers\SiiSignature;
 it(
     'Generates a valid Token Request ',
     function (): void {
-
-
         $siiSignature = app(SiiSignature::class);
         /** @var \CTOhm\SiiAsyncClients\RequestClients\SoapProvider */
         $this->soapClient = $this->soapClient ?? app()->makeWith(SoapProvider::class, ['siiSignature' => $siiSignature]);

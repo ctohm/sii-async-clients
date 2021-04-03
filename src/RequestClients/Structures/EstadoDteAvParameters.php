@@ -9,8 +9,8 @@ declare(strict_types=1);
 namespace CTOhm\SiiAsyncClients\RequestClients\Structures;
 
 use Carbon\Carbon;
-use JsonSerializable;
 use Illuminate\Support\Str;
+use JsonSerializable;
 
 /**
  * Parameters (kinda struct type) that are used when performing an operation towards the SII
@@ -42,10 +42,9 @@ class EstadoDteAvParameters extends EstadoDteParameters implements JsonSerializa
     {
         $rutEmisor = (string) ($requestParams['rutEmisor'] ?? '0-0');
 
-
         if (Str::contains($rutEmisor, '-')) {
             [$rutEmisor, $dvEmisor] = \explode('-', $rutEmisor);
-            $requestParams['dvEmisor'] =  $dvEmisor;
+            $requestParams['dvEmisor'] = $dvEmisor;
             $requestParams['rutEmisor'] = $rutEmisor;
         }
 

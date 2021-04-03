@@ -26,7 +26,6 @@ use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 /**
  * This class stands for Get ServiceType.
  *
-
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
 abstract class WsdlClientBase extends AbstractSoapClientBase
@@ -40,6 +39,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
 
     /**
      * Undocumented variable.
+     *
      * @template-extends \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      *
      * @psalm-var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
@@ -59,6 +59,7 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     {
         return collect(self::$asyncSoapClientsArray);
     }
+
     /**
      * @psalm-return \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      *

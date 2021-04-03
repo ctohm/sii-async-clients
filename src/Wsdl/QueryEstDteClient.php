@@ -17,7 +17,6 @@ use Illuminate\Support\Str;
 /**
  * This class stands for Get ServiceType.
  *
- *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
  */

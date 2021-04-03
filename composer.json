@@ -14,7 +14,6 @@
         "guzzlehttp/guzzle": "^6 || ^7",
         "openlss/lib-array2xml": "^1.0",
         "symfony/dom-crawler": "^5.1",
-        "wsdltophp/packagegenerator": "^3.3.4",
         
         "meng-tian/php-async-soap": "^1.0",
         "meng-tian/soap-http-binding": "^0.2.3"

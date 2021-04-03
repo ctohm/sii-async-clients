@@ -24,11 +24,11 @@ beforeEach(function (): void {
 it(
     'Can retrieve getTokenRequest for a given DTE',
     function (): void {
-    $soapClient = $this->soapClient;
+        $soapClient = $this->soapClient;
 
-    $getTokenRequest = $soapClient->getTokenRequest();
+        $getTokenRequest = $soapClient->getTokenRequest();
 
-    expect($getTokenRequest)->toBeInstanceOf(DOMDocument::class);
+        expect($getTokenRequest)->toBeInstanceOf(DOMDocument::class);
     }
 );
 
@@ -38,9 +38,9 @@ it(
 it(
     'Can retrieve getSignedTokenRequest for a given DTE',
     function (): void {
-    $soapClient = $this->soapClient;
+        $soapClient = $this->soapClient;
 
-    $signedTokenRequest = $soapClient->getSignedTokenRequest();
-    expect($signedTokenRequest)->toContain('<getToken>');
+        $signedTokenRequest = $soapClient->getSignedTokenRequest();
+        expect($signedTokenRequest)->toContain('<getToken>');
     }
 );

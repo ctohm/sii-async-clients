@@ -18,8 +18,9 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @method void __setCookie($name, $value)
  * @method object getEstDte( $rutConsultante,$dvConsultante,$rutCompania,$dvCompania,$rutReceptor,$dvReceptor,$tipoDte,$folioDte,$fechaEmisionDte,$montoDte,$token)
- * @template T 
- * @psalm-template T 
+ * @template T
+ * @psalm-template T
+ *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */

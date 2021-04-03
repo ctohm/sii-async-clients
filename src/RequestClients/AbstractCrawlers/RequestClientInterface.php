@@ -1,11 +1,10 @@
 <?php
 
 /**
- * DBThor Cesion 1.11.0
+ * CTOhm - SII Async Clients
  */
 
 namespace CTOhm\SiiAsyncClients\RequestClients\AbstractCrawlers;
-
 
 use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
 use GuzzleHttp\Cookie\CookieJar;
@@ -18,28 +17,26 @@ interface RequestClientInterface
     /**
      * { function_description }.
      *
-     * @param SiiSignatureInterface  $firmaElectronica  The firma electronica
+     * @param SiiSignatureInterface $siiSignature The firma electronica
      */
     public function recreate(SiiSignatureInterface $siiSignature, array $clientOptions = []): void;
 
     /**
      * Gets the cert files.
      *
-     * @return array  array of paths to the cert files
+     * @return array array of paths to the cert files
      */
     public static function getCertFiles(): array;
 
     /**
      * Clears the client and its cookies.
      */
-    public   function clear(): void;
+    public function clear(): void;
 
     /**
      * Authenticates against the SII.
      *
      * @throws \Exception (description)
-     *
-     * @return CookieJar
      */
     public function authOnSii(array $options = ['debug' => false]): CookieJar;
 
@@ -48,11 +45,11 @@ interface RequestClientInterface
     /**
      * { function_description }.
      *
-     * @param string  $rut_empresa  The rut empresa
+     * @param string $rut_empresa The rut empresa
      *
-     * @return object  ( description_of_the_return_value )
+     * @return object ( description_of_the_return_value )
      */
-    public   function selecionaEmpresa($rut_empresa);
+    public function selecionaEmpresa($rut_empresa);
 
     /**
      * Gets the cookie jar.
@@ -76,5 +73,5 @@ interface RequestClientInterface
      *
      * @return string the url
      */
-    public static function getUrl(string $path = '', string $prefix = null): string;
+    public static function getUrl(string $path = '', ?string $prefix = null): string;
 }

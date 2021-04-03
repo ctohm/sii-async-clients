@@ -8,15 +8,11 @@ declare(strict_types=1);
 
 namespace Tests;
 
-use ComposerRequireChecker\Cli\Application;
 use CTOhm\SiiAsyncClients\Providers\SiiClientsProvider;
-use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
-use Illuminate\Foundation\PackageManifest;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Stringable;
 use Orchestra\Testbench\Console\Kernel;
 use Orchestra\Testbench\TestCase;
-use PHPUnit\Framework\ExecutionOrderDependency;
 use Tests\Helpers\SiiSignature;
 
 /**
@@ -26,14 +22,10 @@ use Tests\Helpers\SiiSignature;
 class BaseTestCase extends TestCase
 {
     use CreatesApplication;
-    public function kdump(...$args): void
-    {
-        kdump(...$args);
-    }
+
     public static string $name = __CLASS__;
+
     public static int $instances = 0;
-
-
 
     /**
      * @param int|string $dataName
@@ -46,8 +38,7 @@ class BaseTestCase extends TestCase
 
         parent::__construct($name, $data, $dataName);
 
-
-        self::$instances++;
+        ++self::$instances;
         self::$name = $this->getName(true);
     }
 
@@ -57,6 +48,17 @@ class BaseTestCase extends TestCase
     public static function setUpBeforeClass(): void
     {
     }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
+    public function kdump(...$args): void
+    {
+        kdump(...$args);
+    }
+
     public function executeBeforeFirstTest(): void
     {
         $console = $this->app->make(Kernel::class);
@@ -70,10 +72,7 @@ class BaseTestCase extends TestCase
             $console->call($command);
         }
     }
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
+
     public function executeAfterLastTest(): void
     {
         \array_map('unlink', \glob('bootstrap/cache/*.phpunit.php'));
@@ -81,9 +80,9 @@ class BaseTestCase extends TestCase
 
     protected function getEnvironmentSetUp($app): void
     {
-        $basePath = dirname(__DIR__);
+        $basePath = \dirname(__DIR__);
         $app->setBasePath($basePath)
-            ->useStoragePath($basePath . DIRECTORY_SEPARATOR . 'storage');
+            ->useStoragePath($basePath . \DIRECTORY_SEPARATOR . 'storage');
         Storage::persistentFake('testing');
         $app->loadEnvironmentFrom($app->environmentFilePath());
         // Setup default database to use sqlite :memory:
@@ -108,16 +107,11 @@ class BaseTestCase extends TestCase
             return new SiiSignature($pfxData);
         });
 
-
-
-
-
         $this->loadMacros();
     }
 
     protected function getPackageProviders($app)
     {
-
         return [SiiClientsProvider::class];
     }
 

@@ -8,8 +8,6 @@ namespace Tests\Helpers;
 
 use CTOhm\SiiAsyncClients\RequestClients\Structures\CertificatesObjectInterface;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\SiiSignatureInterface;
-use Tests\Helpers\SignatureNode;
-use Tests\Helpers\CertificatesObject;
 use DOMDocument;
 
 /**
@@ -243,7 +241,7 @@ class SiiSignature implements SiiSignatureInterface
         $signature_alg = \OPENSSL_ALGO_SHA1
     ) {
         $normalized = \trim(\str_replace(
-            [PHP_EOL, '-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
+            [\PHP_EOL, '-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
             '',
             $pub_key
         ));
@@ -257,10 +255,9 @@ class SiiSignature implements SiiSignatureInterface
     /**
      * Check if document's signature matches this signature instance.
      *
-     * @param string $xml_data The xml data
+     * @param string      $xml_data The xml data
      * @param null|string $tag      The tag
-     * @param bool   $full     if true, return array of results
-     * @param mixed  $verbose
+     * @param mixed       $verbose
      *
      * @return array{0: bool, 1: bool, 2: false|string, 3: string}
      */
@@ -319,9 +316,9 @@ class SiiSignature implements SiiSignatureInterface
         return [
             'valid_public_key' => $valid_public_key,
             'matching_digests' => $matching_digests,
-
         ];
     }
+
     /**
      * verifica la firma digital de datos.
      *

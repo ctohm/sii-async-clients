@@ -1,6 +1,8 @@
 
 SHELL = /usr/bin/env bash
 APP_ENV = $(shell cat .env | grep 'APP_ENV' | head -1 | sed 's/APP_ENV=//')
+COMPOSER_VERSION = $(shell cat composer.json | sed -n 's/.*"version": "\([^"]*\)"/\1/p')
+NPM_VERSION = $(shell cat package.json | sed -n 's/.*"version": "\([^"]*\)",/\1/p')
 
 XDSWI := $(shell command -v xd_swi 2> /dev/null)
 XDSWI_STATUS:=$(shell command xd_swi stat 2> /dev/null)
@@ -16,6 +18,19 @@ BRIGHT=\033[37m
 CYAN=\033[36m
 
 fix_folder:='.'
+
+version:
+	@echo "COMPOSER_VERSION " ${COMPOSER_VERSION} ;\
+	echo "NPM_VERSION " ${NPM_VERSION} 
+
+update_version:
+	@echo "Current version is " ${COMPOSER_VERSION} ;\
+	echo "Next version is " $(v) ;\
+	sed -i s/"$(COMPOSER_VERSION)"/"$(v)"/g composer.json
+	sed -i s/"$(NPM_VERSION)"/"$(v)"/g package.json
+	composer update  --lock
+
+
 
 disable_xdebug:
 		@if [[ "$(XDSWI)" != "" ]]; then \
@@ -67,6 +82,12 @@ check_executable_or_exit_with_phive:
 tag: all_checks update_version csfixer tag_and_push  
 
 
+lint:
+	$(eval executable:=vendor/bin/parallel-lint )
+	$(eval package_name:=php-parallel-lint/php-parallel-lint )
+	@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
+	mkdir -p .build/parallel ;\
+	$(executable) --ignore-fails --exclude vendor  --exclude .build --exclude storage .
 
 update_baselines:
 		@${MAKE} disable_xdebug  --no-print-directory ;\
@@ -101,7 +122,7 @@ endif
 		@${MAKE} abort_suggesting_composer executable=$(executable) package_name=$(package_name) --no-print-directory
 		@mkdir -p .build/phpcs && touch .build/phpcs/csfixer.cache ;\
 		echo -e $(executable) ;\
-		$(executable) vendor/bin/php-cs-fixerfix --config=.php_cs.php --cache-file=.build/phpcs/csfixer.cache --format=$(reportformat)   --diff
+		$(executable)   fix --config=.php_cs.php --cache-file=.build/phpcs/csfixer.cache --format=$(reportformat)   --diff
 
 
 phpcs:
@@ -112,8 +133,7 @@ endif
 		$(eval package_name:=phpcs)
 		@${MAKE} check_executable_or_exit_with_phive  executable=$(executable) package_name=$(package_name) --no-print-directory
 		@mkdir -p .build/phpcs && touch .build/phpcs/php-cs.cache ;\
-		$(executable)  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cs.cache --report=$(reportformat) app/* tests/* config/*
-		$(executable)  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cspkg.cache --report=$(reportformat) resources/packages
+		$(executable)  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cs.cache --report=$(reportformat) src/* tests/*
 
 phpcbf:
 ifeq (,$(reportformat))
@@ -126,17 +146,15 @@ endif
 		tools/phpcbf  --standard=.phpcs.xml  --parallel=2 --cache=.build/phpcs/php-cs.cache --report=$(reportformat) src/* tests/*
 
 
+psalm:
+	@yarn psalm
 
+phpstan:
+	@yarn phpstan	
 
-all_checks: lint  phpcs  csfixer phpcbf psalm phpstan dependency_analysis
-fixers:  lint csfixer psalm phpstan phpcs dependency_analysis
+all_checks: lint  phpcs  csfixer phpcbf psalm phpstan composer_unused
+fixers:  lint csfixer psalm phpstan phpcs composer_unused
 
-.PHONY: dependency_analysis
-dependency_analysis: vendor ## Runs a dependency analysis with maglnet/composer-require-checker
-		$(eval executable:=tools/composer-require-checker)
-		$(eval package_name:=composer-require-checker )
-		@${MAKE} check_executable_or_exit_with_phive executable=$(executable) package_name=$(package_name) --no-print-directory
-		@$(executable) check --config-file=$(shell pwd)/composer-require-checker.json
 
 .PHONY: composer_unused
 composer_unused: vendor ## Runs a dependency analysis with maglnet/composer-require-checker

@@ -285,7 +285,7 @@ final class ExceptionHelper
 
         if ($includeStacktraces) {
             $trace = $e->getTrace();
-            $data['trace']  = self::normalizeBackTrace($trace, $depth, base_path());
+            $data['trace'] = self::normalizeBackTrace($trace, $depth, base_path());
         }
 
         if ($depth >= self::$maxNormalizationDepth) {
@@ -299,6 +299,7 @@ final class ExceptionHelper
 
         return \array_merge(['thrown_at' => \microtime(true)], $data);
     }
+
     public static function normalizeBackTrace(array $trace, int $depth = 1, string $base_path = '')
     {
         $traceArray = [];
@@ -324,6 +325,7 @@ final class ExceptionHelper
 
         return $traceArray;
     }
+
     /**
      * Gets a very simplified exception message.
      *
@@ -336,8 +338,7 @@ final class ExceptionHelper
         $msg = $e->getMessage();
         $trace0 = $e->getTrace()[0];
 
-        if (
-            isset($trace0['args'][1])
+        if (isset($trace0['args'][1])
             && \is_string($trace0['args'][1])
         ) {
             $msg .= ': ' . $trace0['args'][1];

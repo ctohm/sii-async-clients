@@ -89,8 +89,6 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
      */
     protected static $cookiejar;
 
-
-
     /**
      * @var null|callable
      *
@@ -106,7 +104,9 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
     protected static $rut_empresa;
 
     protected static $tipo_documento;
+
     protected static CertificatesObjectInterface $certs;
+
     /**
      * Constructs a new instance.
      */
@@ -118,10 +118,11 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         self::$client = $this->getClient($clientOptions);
         // dump(self::$tempFolder);
     }
+
     /**
      * { function_description }.
      *
-     * @param SiiSignatureInterface  $firmaElectronica  The firma electronica
+     * @param SiiSignatureInterface $siiSignature The firma electronica
      */
     public function recreate(SiiSignatureInterface $siiSignature, array $clientOptions = []): void
     {
@@ -130,24 +131,26 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         self::$client = $this->getClient($clientOptions);
 
         $clientOptions['cookies'] = $clientOptions['cookies'] ?? [];
-        if ($clientOptions['cookies'] instanceof CookieJar) {
-            SiiAuthClient::$cookiejar = $clientOptions['cookies'];
-        } else {
-            SiiAuthClient::$cookiejar = null;
 
-            SiiAuthClient::$cookiejar = $this->getCookieJar();
+        if ($clientOptions['cookies'] instanceof CookieJar) {
+            self::$cookiejar = $clientOptions['cookies'];
+        } else {
+            self::$cookiejar = null;
+
+            self::$cookiejar = $this->getCookieJar();
         }
         static::$authenticatedOnSii = false;
-        SiiAuthClient::$client = null;
-        SiiAuthClient::$client = $this->getClient($clientOptions);
+        self::$client = null;
+        self::$client = $this->getClient($clientOptions);
         // kdump(self::$tempFolder);
     }
+
     /**
      * { function_description }.
      *
-     * @param string  $rut_empresa  The rut empresa
+     * @param string $rut_empresa The rut empresa
      *
-     * @return null|object  ( description_of_the_return_value )
+     * @return null|object ( description_of_the_return_value )
      */
     public function selecionaEmpresa($rut_empresa, bool $debug = false): ?object
     {
@@ -171,6 +174,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
 
         return $response;
     }
+
     /**
      * Gets the url.
      *
@@ -184,6 +188,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         //return sprintf('%s/%s', self::$base_url, $path);
         return \sprintf('%s/%s', $prefix ?? self::$common_uri, $path);
     }
+
     /**
      * Authenticates against the SII.
      *
@@ -353,34 +358,15 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
     }
 
     /**
-     * @return CertificatesObjectInterface
-     */
-    protected function getCerts()
-    {
-        return static::$certs;
-    }
-
-
-    private function fillAndRetrieveTemporaryFile(...$contents)
-    {
-
-        $tmp_file_cert = \tmpfile();
-        foreach ($contents as $content) {
-            \fwrite($tmp_file_cert, $content);
-        }
-
-        return (\stream_get_meta_data($tmp_file_cert))['uri'];
-    }
-    /**
      * Gets the cert files.
      *
      * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
      */
     public static function getCertFiles(): array
     {
-
         return self::$certs->getPaths();
     }
+
     /**
      * Clears the client and its cookies.
      */
@@ -388,6 +374,14 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
     {
         $this->getCookieJar()->clear();
         static::$authenticatedOnSii = false;
+    }
+
+    /**
+     * @return CertificatesObjectInterface
+     */
+    protected function getCerts()
+    {
+        return static::$certs;
     }
 
     /**
@@ -494,5 +488,16 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
                 return $handler($request, $options);
             };
         };
+    }
+
+    private function fillAndRetrieveTemporaryFile(...$contents)
+    {
+        $tmp_file_cert = \tmpfile();
+
+        foreach ($contents as $content) {
+            \fwrite($tmp_file_cert, $content);
+        }
+
+        return (\stream_get_meta_data($tmp_file_cert))['uri'];
     }
 }

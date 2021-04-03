@@ -11,7 +11,6 @@ namespace Tests\Unit;
 use CTOhm\SiiAsyncClients\RequestClients\SoapProvider;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\EstadoDteAvParameters;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\EstadoDteParameters;
-use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -38,7 +37,7 @@ it(
 
         $dteInfoWithToken = \array_merge($dteInfo, ['siiToken' => $siiToken]);
         $estDteArgs = new EstadoDteParameters($dteInfoWithToken);
-        $testGetEstDte = $soapClient->getEstadoDte($estDteArgs)->then(function ($estDteResult): void {
+        $testGetEstDte = $soapClient->getEstadoDte($estDteArgs)->then(static function ($estDteResult): void {
             expect($estDteResult)
 
                 ->toHaveKey('estado')
@@ -47,7 +46,6 @@ it(
                 ->toHaveKey('glosaErr')
                 ->toHaveKey('numAtencion');
         });
-
 
         $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
         $testGetEstDte->wait();
@@ -82,7 +80,7 @@ it(
         ];
 
         $estDteArgs = new EstadoDteAvParameters($estDteAvArgs);
-        $testGetEstDte = $soapClient->getEstadoDteAv($estDteArgs)->then(function ($estDteResult): void {
+        $testGetEstDte = $soapClient->getEstadoDteAv($estDteArgs)->then(static function ($estDteResult): void {
             expect($estDteResult)
 
                 ->toHaveKey('estado')

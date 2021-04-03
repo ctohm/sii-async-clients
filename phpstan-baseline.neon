@@ -1,0 +1,197 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: src/RequestClients/AbstractCrawlers/SiiAbstractCrawler.php
+
+		-
+			message: "#^Static property CTOhm\\\\SiiAsyncClients\\\\RequestClients\\\\DteWsClient\\:\\:\\$debug \\(false\\) does not accept default value of type true\\.$#"
+			count: 1
+			path: src/RequestClients/DteWsClient.php
+
+		-
+			message: "#^Access to an undefined property Psr\\\\Http\\\\Message\\\\ResponseInterface\\:\\:\\$contents\\.$#"
+			count: 1
+			path: src/RequestClients/DteWsClient.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: src/RequestClients/RestClient.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 4
+			path: src/RequestClients/RpetcClient.php
+
+		-
+			message: "#^Instanceof between string and Exception will always evaluate to false\\.$#"
+			count: 1
+			path: src/RequestClients/RpetcClient.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: src/RequestClients/RpetcClient.php
+
+		-
+			message: "#^Call to an undefined static method Illuminate\\\\Support\\\\Facades\\\\Cache\\:\\:set\\(\\)\\.$#"
+			count: 1
+			path: src/RequestClients/SiiAuthClient.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: src/RequestClients/SiiAuthClient.php
+
+		-
+			message: "#^Parameter \\#3 \\$tipoDoc of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\RegistroReclamoDteClient\\:\\:consultarDocDteCedibleAsync\\(\\) expects string, int\\|null given\\.$#"
+			count: 1
+			path: src/RequestClients/SoapProvider.php
+
+		-
+			message: "#^Parameter \\#4 \\$folio of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\RegistroReclamoDteClient\\:\\:consultarDocDteCedibleAsync\\(\\) expects string, int\\|null given\\.$#"
+			count: 1
+			path: src/RequestClients/SoapProvider.php
+
+		-
+			message: "#^Parameter \\#3 \\$tipoDoc of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\RegistroReclamoDteClient\\:\\:listarEventosHistDocAsync\\(\\) expects string, int\\|null given\\.$#"
+			count: 1
+			path: src/RequestClients/SoapProvider.php
+
+		-
+			message: "#^Parameter \\#4 \\$folio of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\RegistroReclamoDteClient\\:\\:listarEventosHistDocAsync\\(\\) expects string, int\\|null given\\.$#"
+			count: 1
+			path: src/RequestClients/SoapProvider.php
+
+		-
+			message: "#^Return type \\(array\\('Token' \\=\\> string, 'RutEmisor' \\=\\> string, 'DVEmisor' \\=\\> string, 'TipoDoc' \\=\\> int, 'FolioDoc' \\=\\> int\\)\\) of method CTOhm\\\\SiiAsyncClients\\\\RequestClients\\\\Structures\\\\EstadoCesionParameters\\:\\:toArray\\(\\) should be compatible with return type \\(array\\('dte_id' \\=\\> string, 'rutEmisor' \\=\\> string, 'fechaEmision' \\=\\> string, 'tipoDoc' \\=\\> string, 'folio' \\=\\> string\\)\\) of method CTOhm\\\\SiiAsyncClients\\\\RequestClients\\\\Structures\\\\EventosHistoricosParameters\\:\\:toArray\\(\\)$#"
+			count: 1
+			path: src/RequestClients/Structures/EstadoCesionParameters.php
+
+		-
+			message: "#^PHPDoc tag @param has invalid value \\(array\\{rutEmisor\\:string,tipoDoc\\:int,folio\\:int,siiToken\\:string,rutEmpresa\\:string,\\?dvEmpresa\\:string,\\?siiToken\\:string\\} \\$requestParams\\)\\: Unexpected token \"\\:\", expected '\\}' at offset 144$#"
+			count: 1
+			path: src/RequestClients/Structures/EstadoCesionRelacionParameters.php
+
+		-
+			message: "#^Offset 'siiToken' does not exist on array\\('rutEmisor' \\=\\> string\\|null, 'dvEmisor' \\=\\> mixed, 'tipoDoc' \\=\\> mixed, 'folio' \\=\\> mixed, 'fechaEmision' \\=\\> mixed, \\?'rutEmpresa' \\=\\> string, \\?'dvEmpresa' \\=\\> string\\)\\.$#"
+			count: 1
+			path: src/RequestClients/Structures/EstadoCesionRelacionParameters.php
+
+		-
+			message: "#^Parameter \\#1 \\$requestParams of method CTOhm\\\\SiiAsyncClients\\\\RequestClients\\\\Structures\\\\EventosHistoricosParameters\\:\\:__construct\\(\\) expects array\\('rutEmisor' \\=\\> string\\|null, 'dvEmisor' \\=\\> mixed, 'tipoDoc' \\=\\> mixed, 'folio' \\=\\> mixed, 'fechaEmision' \\=\\> mixed\\), array\\('rutEmisor' \\=\\> string, 'tipoDoc' \\=\\> int, 'folio' \\=\\> int, 'siiToken' \\=\\> string, 'montoTotal' \\=\\> int, 'fechaEmision' \\=\\> string\\) given\\.$#"
+			count: 1
+			path: src/RequestClients/Structures/EstadoDteParameters.php
+
+		-
+			message: "#^Method CTOhm\\\\SiiAsyncClients\\\\RequestClients\\\\Structures\\\\EventosHistoricosParameters\\:\\:toArray\\(\\) should return array\\('dte_id' \\=\\> string, 'rutEmisor' \\=\\> string, 'fechaEmision' \\=\\> string, 'tipoDoc' \\=\\> string, 'folio' \\=\\> string\\) but returns array\\('dte_id' \\=\\> string, 'rutEmisor' \\=\\> string, 'fechaEmision' \\=\\> mixed, 'tipoDoc' \\=\\> int\\|null, 'folio' \\=\\> int\\|null\\)\\.$#"
+			count: 1
+			path: src/RequestClients/Structures/EventosHistoricosParameters.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/Util/ExceptionHelper.php
+
+		-
+			message: "#^Binary operation \"\\*\" between string and int\\<min, 7\\>\\|int\\<9, max\\> results in an error\\.$#"
+			count: 1
+			path: src/Util/Misc.php
+
+		-
+			message: "#^Parameter \\#1 \\$rutEmpresa of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\QueryEstDteAvanzadoClient\\:\\:getEstDteAvAsync\\(\\) expects string, array given\\.$#"
+			count: 1
+			path: src/Wsdl/QueryEstDteAvanzadoClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:getEstDteAv\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/QueryEstDteAvanzadoClient.php
+
+		-
+			message: "#^Parameter \\#1 \\$rutConsultante of method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\QueryEstDteClient\\:\\:getEstDteAsync\\(\\) expects string, array\\<string\\> given\\.$#"
+			count: 2
+			path: src/Wsdl/QueryEstDteClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:consultarDocDteCedible\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/RegistroReclamoDteClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:listarEventosHistDoc\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/RegistroReclamoDteClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:getEstCesion\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/RpetcWsdlClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:getEstCesionRelac\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/RpetcWsdlClient.php
+
+		-
+			message: "#^Call to an undefined method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\:\\:getEstEnvio\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/RpetcWsdlClient.php
+
+		-
+			message: "#^Call to an undefined method SoapClient\\:\\:getSeed\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/CrSeedClient.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between false and SimpleXMLElement will always evaluate to false\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/CrSeedClient.php
+
+		-
+			message: "#^PHPDoc tag @template\\-extends has invalid value \\(\\\\CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient\\)\\: Unexpected token \"\\\\n     \\*\", expected '\\<' at offset 119$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Method CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\SoapClients\\\\WsdlClientBase\\:\\:getAsyncSoapClient\\(\\) should return CTOhm\\\\SiiAsyncClients\\\\Wsdl\\\\AsyncSoap\\\\AsyncSoapClient but returns Meng\\\\AsyncSoap\\\\SoapClientInterface\\.$#"
+			count: 2
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Call to an undefined method Meng\\\\AsyncSoap\\\\SoapClientInterface\\:\\:__setCookie\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Class Error referenced with incorrect case\\: error\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Parameter \\#1 \\$message of static method Illuminate\\\\Support\\\\Facades\\\\Log\\:\\:warning\\(\\) expects string, Error given\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Parameter \\#1 \\$message of static method Illuminate\\\\Support\\\\Facades\\\\Log\\:\\:error\\(\\) expects string, Exception given\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Ternary operator condition is always true\\.$#"
+			count: 1
+			path: src/Wsdl/SoapClients/WsdlClientBase.php
+
+		-
+			message: "#^Call to an undefined method SoapClient\\:\\:getToken\\(\\)\\.$#"
+			count: 1
+			path: src/Wsdl/TokenGetterClient.php
+
+		-
+			message: "#^Parameter \\#1 \\$message of static method Illuminate\\\\Support\\\\Facades\\\\Log\\:\\:warning\\(\\) expects string, SoapFault given\\.$#"
+			count: 1
+			path: src/Wsdl/TokenGetterClient.php
+

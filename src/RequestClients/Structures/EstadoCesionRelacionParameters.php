@@ -40,7 +40,7 @@ class EstadoCesionRelacionParameters extends EventosHistoricosParameters impleme
 
     public ?string $rutEmpresa = null;
 
-    public  ?string $dVEmpresa = null;
+    public ?string $dVEmpresa = null;
 
     /**
      * Undocumented function.
@@ -64,7 +64,7 @@ class EstadoCesionRelacionParameters extends EventosHistoricosParameters impleme
         /**
          * @psalm-suppress UndefinedThisPropertyAssignment
          */
-        $this->dvEmpresa = $requestParams['dvEmpresa']  ?? config('sii.dv_financia');
+        $this->dvEmpresa = $requestParams['dvEmpresa'] ?? config('sii.dv_financia');
     }
 
     public function jsonSerialize()

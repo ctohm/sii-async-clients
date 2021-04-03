@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DBThor Cesion 1.11.0
+ * CTOhm - SII Async Clients
  */
 
 namespace CTOhm\SiiAsyncClients\RequestClients;
@@ -10,27 +10,28 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class DteWsClient extends SiiAuthClient
 {
-
     public static $debug = true;
+
     /**
      * Gets the url.
      *
-     * @param string $path   The path
+     * @param string      $path   The path
      * @param null|string $prefix The prefix
      *
      * @return string the url
      */
-    public static function getUrl(string $path = '', string $prefix = null): string
+    public static function getUrl(string $path = '', ?string $prefix = null): string
     {
         //return sprintf('%s/%s', self::BASE_URL, $path);
         return \sprintf('%s/%s', $prefix ?? self::BASE_URL, $path);
     }
+
     /**
      * { function_description }.
      *
-     * @param string $rut_empresa  The rut empresa
-     * @param string  $FEC_DESDE    The fec desde
-     * @param string  $FEC_HASTA    The fec hasta
+     * @param string $rut_empresa The rut empresa
+     * @param string $FEC_DESDE   The fec desde
+     * @param string $FEC_HASTA   The fec hasta
      *
      * @return Crawler|array<array-key, mixed>  ( description_of_the_return_value )
      */
@@ -55,21 +56,21 @@ class DteWsClient extends SiiAuthClient
             [
                 'headers' => [],
                 //'debug'   => true,
-                'query'   => [
-                    'RUT_RECP'  => '',
-                    'FOLIO'     => '',
-                    'RZN_SOC'   => '',
+                'query' => [
+                    'RUT_RECP' => '',
+                    'FOLIO' => '',
+                    'RZN_SOC' => '',
                     'FEC_DESDE' => $FEC_DESDE ?? '',
                     'FEC_HASTA' => $FEC_HASTA ?? '',
-                    'TPO_DOC'   => '',
-                    'ESTADO'    => '',
-                    'ORDEN'     => '',
-                    'NUM_PAG'   => 1,
+                    'TPO_DOC' => '',
+                    'ESTADO' => '',
+                    'ORDEN' => '',
+                    'NUM_PAG' => 1,
                 ],
             ]
         );
 
-        $docsEmitidos = tap($response->getBody()->getContents(), fn ($resp) => null);
+        $docsEmitidos = tap($response->getBody()->getContents(), static fn ($resp) => null);
 
         //$user_id = self::$firmaElectronica->user_id;
         $crawler = new Crawler($docsEmitidos);
@@ -97,9 +98,9 @@ class DteWsClient extends SiiAuthClient
     /**
      * { function_description }.
      *
-     * @param string $rut_empresa  The rut empresa
-     * @param string  $FEC_DESDE    The fec desde
-     * @param string  $FEC_HASTA    The fec hasta
+     * @param string $rut_empresa The rut empresa
+     * @param string $FEC_DESDE   The fec desde
+     * @param string $FEC_HASTA   The fec hasta
      *
      * @return Crawler|array<array-key, mixed>  ( description_of_the_return_value )
      */
@@ -124,16 +125,16 @@ class DteWsClient extends SiiAuthClient
             [
                 'headers' => [],
                 //'debug'   => true,
-                'query'   => [
-                    'RUT_EMI'   => '',
-                    'FOLIO'     => '',
-                    'RZN_SOC'   => '',
+                'query' => [
+                    'RUT_EMI' => '',
+                    'FOLIO' => '',
+                    'RZN_SOC' => '',
                     'FEC_DESDE' => $FEC_DESDE ?? '',
                     'FEC_HASTA' => $FEC_HASTA ?? '',
-                    'TPO_DOC'   => '',
-                    'ESTADO'    => '',
-                    'ORDEN'     => '',
-                    'NUM_PAG'   => 1,
+                    'TPO_DOC' => '',
+                    'ESTADO' => '',
+                    'ORDEN' => '',
+                    'NUM_PAG' => 1,
                 ],
             ]
         );
@@ -165,9 +166,9 @@ class DteWsClient extends SiiAuthClient
     /**
      * { function_description }.
      *
-     * @param Crawler  $node       The node
-     * @param int                                $index      The index
-     * @param string                         $tablaHead  The tabla head
+     * @param Crawler $node      The node
+     * @param int     $index     The index
+     * @param string  $tablaHead The tabla head
      *
      * @return array<array-key, mixed>  ( description_of_the_return_value )
      */
@@ -192,14 +193,14 @@ class DteWsClient extends SiiAuthClient
         //kdump($tablaHead, $rut_contraparte);
         $rut_contraparte = $tds->eq(1)->text();
         $dte = [
-            'rut_emisor'     => 'Receptor' === $tablaHead ? $rut_empresa :
+            'rut_emisor' => 'Receptor' === $tablaHead ? $rut_empresa :
                 $tds->eq(1)->text(),
             'tipo_documento' => (int) $tipo_doc,
-            'folio'          => $folio,
+            'folio' => $folio,
         ];
         $id_doc = \implode('_', $dte);
         $dte = \array_merge($dte, [
-            'id'           => $id_doc,
+            'id' => $id_doc,
             //    'user_id'      => $user_id,
             'rut_receptor' => 'Receptor' === $tablaHead ? $rut_contraparte :
                 $rut_empresa,
@@ -209,11 +210,11 @@ class DteWsClient extends SiiAuthClient
         $dte['mntTotal'] = $tds->eq(6)->text();
         $dte['estado'] = $tds->eq(7)->text();
 
-        if (34 === intval($dte['tipo_documento'])) {
+        if (34 === (int) ($dte['tipo_documento'])) {
             $dte['mntNeto'] = 0;
             $dte['mntExento'] = $dte['mntTotal'];
             $dte['mntIva'] = 0;
-        } elseif (33 === intval($dte['tipo_documento'])) {
+        } elseif (33 === (int) ($dte['tipo_documento'])) {
             $dte['mntNeto'] = (int) ($dte['mntTotal'] / 1.19);
             $dte['mntIva'] = $dte['mntTotal'] - $dte['mntNeto'];
             $dte['mntExento'] = 0;

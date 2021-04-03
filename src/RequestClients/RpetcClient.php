@@ -45,8 +45,11 @@ class RpetcClient extends RestClient
     ];
 
     public static string $common_uri = 'https://palena.sii.cl/cgi_rtc/RTC/';
+
     protected CertificatesObjectInterface $certificatesObject;
+
     protected static CertificatesObjectInterface $certs;
+
     /**
      * @var null|string
      */
@@ -60,6 +63,7 @@ class RpetcClient extends RestClient
         parent::__construct($siiSignature, $clientOptions);
         static::$certs = $this->certificatesObject;
     }
+
     /**
      * Gets the cert files.
      *
@@ -67,9 +71,9 @@ class RpetcClient extends RestClient
      */
     public static function getCertFiles(): array
     {
-
         return self::$certs->getPaths();
     }
+
     /**
      * Gets the cert files.
      *
@@ -78,15 +82,17 @@ class RpetcClient extends RestClient
     public function getCertPaths(): array
     {
         return $this->certificatesObject->getPaths();
-        if (count($this->certpaths) === 0) {
+
+        if (\count($this->certpaths) === 0) {
             $this->certFile = \tmpfile();
-            $this->pkeyFile =  \tmpfile();
+            $this->pkeyFile = \tmpfile();
 
             \fwrite($this->pkeyFile, $this->certificatesObject->pkey);
             \fwrite($this->certFile, $this->certificatesObject->cert);
 
             if ($this->certificatesObject->extracerts) {
-                $this->caFile =  \tmpfile();
+                $this->caFile = \tmpfile();
+
                 foreach ($this->certificatesObject->extracerts as $extracert) {
                     \fwrite($this->caFile, $extracert);
                 }
@@ -95,12 +101,13 @@ class RpetcClient extends RestClient
             $this->certpaths = [
                 'cert' => \stream_get_meta_data($this->certFile)['uri'],
                 'ssl_key' => \stream_get_meta_data($this->pkeyFile)['uri'],
-                'verify' => $this->caFile ? \stream_get_meta_data($this->caFile)['uri'] : config('sii-clients.cacert_pemfile')
+                'verify' => $this->caFile ? \stream_get_meta_data($this->caFile)['uri'] : config('sii-clients.cacert_pemfile'),
             ];
         }
 
         return $this->certpaths;
     }
+
     /**
      * Gets the client.
      *
@@ -216,7 +223,7 @@ class RpetcClient extends RestClient
 
         $query = \array_merge([
             'TXTXML' => 'TXT',
-            'TIPOCONSULTA' => self::TIPO_CESIONARIO
+            'TIPOCONSULTA' => self::TIPO_CESIONARIO,
         ], $options, [
             'DESDE' => $fecha_desde->format('dmY'),
             'HASTA' => $fecha_hasta->format('dmY'),
@@ -325,7 +332,6 @@ class RpetcClient extends RestClient
         ?Carbon $fecha_hasta = null,
         array $options = ['TIPOCONSULTA' => self::TIPO_CESIONARIO]
     ): ?Collection {
-
         $representacion = $this->representar($rut_empresa);
 
         if ($representacion !== $rut_empresa) {
@@ -455,7 +461,7 @@ class RpetcClient extends RestClient
     /**
      * Undocumented function.
      *
-     * @return  string
+     * @return string
      */
     private function representar(string $rut_empresa)
     {
@@ -480,7 +486,7 @@ class RpetcClient extends RestClient
                     'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
                 ],
                 'form_params' => ['RUT_RPDO' => $rutEmpresa, 'APPLS' => 'RPETC'],
-            ]), fn ($reqOptions) => null/*kdump($reqOptions)*/);
+            ]), static fn ($reqOptions) => null/*kdump($reqOptions)*/);
             $response = $this->sendSiiRequest(
                 'POST',
                 'https://herculesr.sii.cl/cgi_AUT2000/admRepresentar.cgi',

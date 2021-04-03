@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Console\OutputStyle;
-
-//test('is_true')->with('lambdas')->assertIsTest([]);
+/**
+ * CTOhm - SII Async Clients
+ */
 
 it('is_empty')->assertEmpty([]);
 it(
@@ -11,8 +11,7 @@ it(
         string $email,
         string $loaded_at
     ): void {
-        $this->writeWhenRun('Test 1', $email, $loaded_at, microtime(true), '#090', '#AA1');
-
+        $this->writeWhenRun('Test 1', $email, $loaded_at, \microtime(true), '#090', '#AA1');
 
         expect($email)->toBeString();
     }
@@ -24,8 +23,7 @@ it(
         string $email,
         string $loaded_at
     ): void {
-        $this->writeWhenRun('Test 2', $email, $loaded_at, microtime(true), '#3A3', '#CC4');
-
+        $this->writeWhenRun('Test 2', $email, $loaded_at, \microtime(true), '#3A3', '#CC4');
 
         expect($email)->toBeString();
     }

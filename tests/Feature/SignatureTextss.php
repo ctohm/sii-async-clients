@@ -8,10 +8,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use CTOhm\SiiAsyncClients\RequestClients\SoapProvider;
-use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
 use PHPUnit\Framework\TestCase;
-use Tests\Helpers\SiiSignature;
 
 test('is_true')->with('lambdas')->assertIsTest([]);
 /**
@@ -25,4 +22,4 @@ it(
         return $this;
     }
 )->with('lambdas')->markTestSkipped('is_true')
-    ->tap(fn ($test) =>  $test->markTestSkipped('is_true'));
+    ->tap(static fn ($test) => $test->markTestSkipped('is_true'));

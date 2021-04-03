@@ -4,7 +4,6 @@
  * CTOhm - SII Async Clients
  */
 
-use CTOhm\SiiAsyncClients\Util\ExceptionHelper;
 use Illuminate\Support\Facades\Storage;
 use Kint\Kint;
 use Kint\Parser\BlacklistPlugin;
@@ -14,14 +13,12 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Tests\BaseTestCase;
 
 \defined('STDERR') || \define('STDERR', \fopen('php://stderr', 'wb'));
+
 if (!\function_exists('get_files')) {
     function get_files($files)
     {
-
-
-
         foreach ($files as $filename) {
-            yield  [$filename, microtime(true), Storage::exists($filename)];
+            yield [$filename, \microtime(true), Storage::exists($filename)];
         }
     }
 }

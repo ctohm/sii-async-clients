@@ -50,8 +50,6 @@ class SiiDOMDocument extends \DOMDocument
         $this->preserveWhiteSpace = $preserveWhiteSpace;
     }
 
-
-
     /**
      * Carga un string XML en el Objeto desde un string.
      *

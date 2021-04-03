@@ -10,8 +10,6 @@ namespace Tests\Unit;
 
 use Carbon\Carbon;
 use CTOhm\SiiAsyncClients\RequestClients\DteWsClient;
-use CTOhm\SiiAsyncClients\RequestClients\RpetcClient;
-use CTOhm\SiiAsyncClients\RequestClients\Structures\EventosHistoricosParameters;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Tests\Helpers\SiiSignature;

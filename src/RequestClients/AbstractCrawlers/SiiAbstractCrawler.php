@@ -1,25 +1,19 @@
 <?php
 
 /**
- * DBThor Cesion 1.11.0
+ * CTOhm - SII Async Clients
  */
 
 namespace CTOhm\SiiAsyncClients\RequestClients\AbstractCrawlers;
 
-use Carbon\Carbon;
-
-use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
-
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use function kdump;
 use Psr\Http\Message\RequestInterface;
+use function kdump;
 
-
-abstract class  SiiAbstractCrawler
+abstract class SiiAbstractCrawler
 {
     public static $tipos_doc_reverso = [
         'Factura Electronica' => 33,
@@ -50,9 +44,9 @@ abstract class  SiiAbstractCrawler
     /**
      * Gets the or create dump folder.
      *
-     * @param string $rut_empresa  The rut empresa
+     * @param string $rut_empresa The rut empresa
      *
-     * @return string The or create dump folder.
+     * @return string the or create dump folder
      */
     public static function getOrCreateDumpFolder($rut_empresa)
     {
@@ -74,13 +68,10 @@ abstract class  SiiAbstractCrawler
         return $dump_folder;
     }
 
-
-
-
     protected static function debugRequestHeaders()
     {
-        return function (callable $handler) {
-            return function (
+        return static function (callable $handler) {
+            return static function (
                 RequestInterface $request,
                 array $options = []
             ) use ($handler) {
@@ -93,6 +84,7 @@ abstract class  SiiAbstractCrawler
                         $options
                     );
                 }
+
                 foreach ($request->getHeaders() as $headername => $headervalue) {
                     $headers[$headername] = $headervalue[0];
                 }
@@ -120,10 +112,10 @@ abstract class  SiiAbstractCrawler
     /**
      * Normaliza el tratamiento de una excepción de Guzzle.
      *
-     * @param object     $res          The response which errored
+     * @param object                          $res          The response which errored
      * @param ClientException|ServerException $e            Excepción gatillada por guggle
-     * @param string     $route_method URL y método del llamado que falló
-     * @param array<array-key, mixed>      $reqParams    The request parameters
+     * @param string                          $route_method URL y método del llamado que falló
+     * @param array<array-key, mixed>         $reqParams    The request parameters
      *
      * @return object original response enriched with exception data133
      */

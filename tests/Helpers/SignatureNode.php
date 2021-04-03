@@ -205,19 +205,18 @@ class SignatureNode implements \JsonSerializable
      */
     public static function ArrayToDOMElement(array $data, ?\DOMElement &$parent = null)
     {
-
-
         if (null === $parent) {
             $parent = new DOMDocument();
             $ownerDocument = $parent;
         } else {
-            $ownerDocument =   $parent->ownerDocument;
+            $ownerDocument = $parent->ownerDocument;
         }
 
         foreach ($data as $key => $value) {
-            if ($value === false) {
+            if (false === $value) {
                 continue;
             }
+
             if ('@attributes' === $key) {
                 foreach ($value as $attr => $val) {
                     if (false !== $val) {
@@ -247,6 +246,7 @@ class SignatureNode implements \JsonSerializable
 
         return $ownerDocument;
     }
+
     /**
      * @return false|string
      */

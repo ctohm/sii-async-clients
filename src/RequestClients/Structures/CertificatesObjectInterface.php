@@ -22,6 +22,5 @@ interface CertificatesObjectInterface extends Arrayable, JsonSerializable
 
     public function toArray(): array;
 
-
-    public  function getPaths(): array;
+    public function getPaths(): array;
 }

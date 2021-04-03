@@ -76,9 +76,6 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
      */
     protected static $cookiejar;
 
-    /**
-     * @var array<array-key, mixed>
-     */
     protected static CertificatesObjectInterface $certs;
 
     protected static $history;
@@ -99,8 +96,6 @@ class RestClient extends SiiAuthClient implements RetrievesEventosHistoricosInte
 
         parent::__construct($siiSignature, $clientOptions);
     }
-
-
 
     /**
      * Gets the namespace.
