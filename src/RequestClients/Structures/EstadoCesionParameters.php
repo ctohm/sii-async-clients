@@ -57,7 +57,7 @@ class EstadoCesionParameters extends EventosHistoricosParameters implements Arra
     /**
      * Undocumented function.
      *
-     * @param array{rutEmisor:string,dvEmisor:mixed,rutReceptor:mixed,dvReceptor:mixed,tipoDoc:mixed,folio:mixed,siiToken:string,montoTotal:int} $requestParams
+     * @param array{rutEmisor:string,dvEmisor:mixed,rutReceptor:mixed,dvReceptor:mixed,tipoDoc:mixed,folio:mixed,siiToken:string,montoTotal:int,fechaEmision:string} $requestParams
      */
     public function __construct(array $requestParams)
     {

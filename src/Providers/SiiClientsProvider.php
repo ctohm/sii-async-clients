@@ -44,11 +44,9 @@ final class SiiClientsProvider extends ServiceProvider
                 ],
             ]);
         });
-        $this->app->bind('command.wsdl2php:generate', GenerateFromWsdlCommand::class);
+        //        $this->app->bind('command.wsdl2php:generate', GenerateFromWsdlCommand::class);
 
-        $this->commands([
-            'command.wsdl2php:generate',
-        ]);
+        //$this->commands(['command.wsdl2php:generate',]);
 
         $this->app->singleton(SoapProvider::class, static function ($app, ?array $args = null): SoapProvider {
             $siiSignature = self::verifySiiSignatureParameter($args);

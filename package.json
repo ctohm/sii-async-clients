@@ -3,7 +3,14 @@
   "version": "0.2.0",
   "description": "sii-async-clients",
   "license": "MIT",
-  "private": true,
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ctohm/sii-async-clients.git"
+    
+  },
   "scripts": {
     "psalm:unused": "yarn psalter --issues=UnusedProperty,UnusedVariable ",
     "psalm:undefined": "yarn psalter --issues=MissingReturnType,MissingClosureReturnType,InvalidReturnType,InvalidNullableReturnType,InvalidFalsableReturnType,MissingParamType,MissingPropertyType,MismatchingDocblockParamType,MismatchingDocblockReturnType ",

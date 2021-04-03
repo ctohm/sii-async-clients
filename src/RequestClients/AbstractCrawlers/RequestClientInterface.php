@@ -20,12 +20,7 @@ interface RequestClientInterface
      *
      * @param SiiSignatureInterface  $firmaElectronica  The firma electronica
      */
-    public function recreate(SiiSignatureInterface $firmaElectronica): void;
-
-    /**
-     * Dumps guzzle history.
-     */
-    public static function dumpHistory();
+    public function recreate(SiiSignatureInterface $siiSignature, array $clientOptions = []): void;
 
     /**
      * Gets the cert files.
@@ -44,7 +39,7 @@ interface RequestClientInterface
      *
      * @throws \Exception (description)
      *
-     * @return object|null ( description_of_the_return_value )
+     * @return CookieJar
      */
     public function authOnSii(array $options = ['debug' => false]): CookieJar;
 

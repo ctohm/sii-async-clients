@@ -18,7 +18,8 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @method void __setCookie($name, $value)
  * @method object getEstDte( $rutConsultante,$dvConsultante,$rutCompania,$dvCompania,$rutReceptor,$dvReceptor,$tipoDte,$folioDte,$fechaEmisionDte,$montoDte,$token)
- *
+ * @template T 
+ * @psalm-template T 
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
@@ -78,6 +79,7 @@ class AsyncSoapClient implements SoapClientInterface
                 $requestOptions = $options['request_options'] ?? [];
 
                 try {
+                    /** @var \GuzzleHttp\Psr7\Response $response */
                     $response = (yield $this->client->sendAsync($request, $requestOptions));
 
                     yield $this->interpretResponse($httpBinding, $response, $name, $outputHeaders);

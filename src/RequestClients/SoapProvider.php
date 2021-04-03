@@ -290,6 +290,9 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         return self::$registroReclamoDteClient;
     }
 
+    /**
+     * @param array $options
+     */
     private static function getQueryEstDteAvanzadoClientInstance($options = []): QueryEstDteAvanzadoClient
     {
         $options['soapToken'] = $options['soapToken'] ?? self::getToken(self::$siiSignature);

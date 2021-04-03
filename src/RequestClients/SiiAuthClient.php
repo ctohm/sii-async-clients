@@ -147,9 +147,9 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
      *
      * @param string  $rut_empresa  The rut empresa
      *
-     * @return object  ( description_of_the_return_value )
+     * @return null|object  ( description_of_the_return_value )
      */
-    public function selecionaEmpresa($rut_empresa, bool $debug = false)
+    public function selecionaEmpresa($rut_empresa, bool $debug = false): ?object
     {
         $this->authOnSii();
         $response = $this->sendSiiRequest(
@@ -228,7 +228,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
     /**
      * Undocumented function.
      *
-     * @return array{value:string}|null array representation of the SiiToken
+     * @return array{token:string}|null array representation of the SiiToken
      */
     public function getToken(bool $debug = false): ?array
     {

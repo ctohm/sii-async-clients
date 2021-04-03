@@ -10,6 +10,7 @@ namespace CTOhm\SiiAsyncClients\RequestClients\Structures;
 
 use Carbon\Carbon;
 use JsonSerializable;
+use Illuminate\Support\Str;
 
 /**
  * Parameters (kinda struct type) that are used when performing an operation towards the SII
@@ -35,10 +36,19 @@ class EstadoDteAvParameters extends EstadoDteParameters implements JsonSerializa
     /**
      * Undocumented function.
      *
-     * @param array{rutEmisor:string,tipoDoc:int,folio:int,siiToken:string,firmaDte:string} $requestParams
+     * @param array{rutEmisor:string,tipoDoc:int,folio:int,siiToken:string,firmaDte:string,montoTotal:int,fechaEmision:string,dvEmisor:string} $requestParams
      */
     public function __construct(array $requestParams)
     {
+        $rutEmisor = (string) ($requestParams['rutEmisor'] ?? '0-0');
+
+
+        if (Str::contains($rutEmisor, '-')) {
+            [$rutEmisor, $dvEmisor] = \explode('-', $rutEmisor);
+            $requestParams['dvEmisor'] =  $dvEmisor;
+            $requestParams['rutEmisor'] = $rutEmisor;
+        }
+
         parent::__construct($requestParams);
 
         $this->firmaDte = $requestParams['firmaDte'];

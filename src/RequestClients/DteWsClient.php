@@ -10,23 +10,7 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class DteWsClient extends SiiAuthClient
 {
-    /**
-     * Gets the cert files.
-     *
-     * @return array{cert:string,ssl_key:string,verify:string|null} array of paths to the cert files
-     */
-    public function getPaths(): array
-    {
-        if (count($this->certpaths) === 0) {
-            $this->certpaths = [
-                'cert' => \stream_get_meta_data($this->certFile)['uri'],
-                'ssl_key' => \stream_get_meta_data($this->pkeyFile)['uri'],
-                'verify' => $this->caFile ? \stream_get_meta_data($this->caFile)['uri'] : config('sii-clients.cacert_pemfile')
-            ];
-        }
 
-        return $this->certpaths;
-    }
     public static $debug = true;
     /**
      * Gets the url.

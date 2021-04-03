@@ -45,19 +45,10 @@ class BaseTestCase extends TestCase
         $app = $this->createApplication();
 
         parent::__construct($name, $data, $dataName);
-        if (self::$instances === 0) {
-            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 20);
-            dump(ExceptionHelper::normalizeBackTrace($backtrace));
-        }
+
+
         self::$instances++;
         self::$name = $this->getName(true);
-        /*kdump([
-            'name' =>   self::$name,
-            //'data' => $data,
-            //'dataName' => $dataName,
-            'suffix' => $this->suffix
-        ]);*/
-        //  echo  sprintf('%s %s', self::$instances, self::$name) . PHP_EOL;
     }
 
     /**

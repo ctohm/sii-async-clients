@@ -40,7 +40,7 @@ class EstadoCesionRelacionParameters extends EventosHistoricosParameters impleme
 
     public ?string $rutEmpresa = null;
 
-    public ?string $dVEmpresa = null;
+    public  ?string $dVEmpresa = null;
 
     /**
      * Undocumented function.
@@ -56,10 +56,15 @@ class EstadoCesionRelacionParameters extends EventosHistoricosParameters impleme
 
         if (Str::contains($rutEmpresa, '-')) {
             [$rutEmpresa, $dvEmpresa] = \explode('-', $rutEmpresa);
+            $requestParams['rutEmpresa'] = $rutEmpresa;
+            $requestParams['dvEmpresa'] = $dvEmpresa;
         }
         $this->siiToken = $requestParams['siiToken'];
         $this->rutEmpresa = $rutEmpresa ?? config('sii.rut_financia');
-        $this->dvEmpresa = $dvEmpresa ?? config('sii.dv_financia');
+        /**
+         * @psalm-suppress UndefinedThisPropertyAssignment
+         */
+        $this->dvEmpresa = $requestParams['dvEmpresa']  ?? config('sii.dv_financia');
     }
 
     public function jsonSerialize()

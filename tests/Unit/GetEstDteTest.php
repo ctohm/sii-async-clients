@@ -11,6 +11,7 @@ namespace Tests\Unit;
 use CTOhm\SiiAsyncClients\RequestClients\SoapProvider;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\EstadoDteAvParameters;
 use CTOhm\SiiAsyncClients\RequestClients\Structures\EstadoDteParameters;
+use CTOhm\SiiAsyncClients\Wsdl\SoapClients\WsdlClientBase;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -46,6 +47,7 @@ it(
                 ->toHaveKey('glosaErr')
                 ->toHaveKey('numAtencion');
         });
+
 
         $this->assertInstanceOf(PromiseInterface::class, $testGetEstDte);
         $testGetEstDte->wait();

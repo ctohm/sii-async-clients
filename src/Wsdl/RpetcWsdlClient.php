@@ -16,7 +16,6 @@ use Illuminate\Support\Collection;
 /**
  * This class stands for Get ServiceType.
  *
- * @extends WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient>
  *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
@@ -28,9 +27,9 @@ final class RpetcWsdlClient extends WsdlClientBase
     /**
      * Undocumented variable.
      *
-     * @psalm-var WsdlClientBase<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient>
+     * @psalm-var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient>
      *
-     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient
+     * @var  \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RpetcWsdlAsyncClient>
      */
     protected static $asyncSoapClient = null;
 

@@ -207,14 +207,17 @@ class RpetcClient extends RestClient
             kdump($representacion);
             kdump('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
 
-            return null;
+            return collect([]);
         }
         $dte_url = 'RTCConsultaCesiones.cgi';
         $referer = 'RTCConsultaCesionesHtml.cgi';
 
         $CESIONES = '';
 
-        $query = \array_merge(['TXTXML' => 'TXT', 'TIPOCONSULTA' => self::TIPO_CESIONARIO], $options, [
+        $query = \array_merge([
+            'TXTXML' => 'TXT',
+            'TIPOCONSULTA' => self::TIPO_CESIONARIO
+        ], $options, [
             'DESDE' => $fecha_desde->format('dmY'),
             'HASTA' => $fecha_hasta->format('dmY'),
         ]);
@@ -260,7 +263,7 @@ class RpetcClient extends RestClient
      * @param string $rut_empresa  The rut empresa
      * @param string $id_documento The identifier documento
      *
-     * @return array
+     * @return null|array
      */
     public function getDetalleCesionRTC(string $rut_empresa, string $id_documento)
     {
@@ -452,7 +455,7 @@ class RpetcClient extends RestClient
     /**
      * Undocumented function.
      *
-     * @return \Exception|string
+     * @return  string
      */
     private function representar(string $rut_empresa)
     {
@@ -489,7 +492,7 @@ class RpetcClient extends RestClient
             if (!$representarDOM->contains('REPRESENTACIÓN REALIZADA')) {
                 throw new \Exception('NO SE PUDO REPRESENTAR A ' . $rut_empresa);
             }
-            $representandoA = null;
+            $representandoA = '';
             $div = $representarDOM->after('REPRESENTACIÓN REALIZADA</h2>')
                 ->before('<p><strong>En las aplicaciones')
                 ->afterLast('<p>')
@@ -516,7 +519,7 @@ class RpetcClient extends RestClient
         } catch (\Exception $e) {
             kdump(ExceptionHelper::normalizeException($e));
 
-            return $e;
+            return $e->getMessage();
         }
     }
 

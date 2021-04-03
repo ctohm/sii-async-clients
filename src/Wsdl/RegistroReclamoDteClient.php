@@ -16,7 +16,6 @@ use GuzzleHttp\Promise\PromiseInterface;
 /**
  * This class stands for Listar ServiceType.
  *
- * @template-extends WsdlClientBase<RegistroReclamoAsyncClient>
  *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
@@ -30,10 +29,11 @@ final class RegistroReclamoDteClient extends WsdlClientBase
 
     /**
      * Undocumented variable.
+     * @template-extends \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<RegistroReclamoAsyncClient>
      *
-     * @psalm-var  WsdlClientBase<RegistroReclamoAsyncClient>
+     * @psalm-var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RegistroReclamoAsyncClient>
      *
-     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
+     * @var  \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<\CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\RegistroReclamoAsyncClient>
      */
     protected static $asyncSoapClient = null;
 
@@ -145,15 +145,13 @@ final class RegistroReclamoDteClient extends WsdlClientBase
     public function ingresarAceptacionReclamoDoc($rutEmisor, $dvEmisor, $tipoDoc, $folio, $accionDoc)
     {
         try {
-            $this->setResult($this->getSoapClient()->__soapCall('ingresarAceptacionReclamoDoc', [
+            return tap($this->getSoapClient()->__soapCall('ingresarAceptacionReclamoDoc', [
                 $rutEmisor,
                 $dvEmisor,
                 $tipoDoc,
                 $folio,
                 $accionDoc,
-            ], [], [], $this->outputHeaders));
-
-            return $this->getResult();
+            ], [], [], $this->outputHeaders), fn ($res) =>            $this->setResult($res));
         } catch (\SoapFault $soapFault) {
             $this->saveLastError(__METHOD__, $soapFault);
 

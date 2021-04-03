@@ -17,6 +17,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\HandlerStack;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Meng\AsyncSoap\SoapClientInterface;
 use Throwable;
@@ -25,8 +26,7 @@ use WsdlToPhp\PackageBase\AbstractSoapClientBase;
 /**
  * This class stands for Get ServiceType.
  *
- * @template T of \Meng\AsyncSoap\SoapClientInterface
- * @psalm-template T of \Meng\AsyncSoap\SoapClientInterface
+
  * @psalm-internal CTOhm\SiiAsyncClients\Wsdl
  */
 abstract class WsdlClientBase extends AbstractSoapClientBase
@@ -39,9 +39,12 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
     protected array $mergedClientOptions = [];
 
     /**
-     * @psalm-var T
+     * Undocumented variable.
+     * @template-extends \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      *
-     * @var T
+     * @psalm-var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
+     *
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      */
     protected static $asyncSoapClient = null;
 
@@ -52,10 +55,14 @@ abstract class WsdlClientBase extends AbstractSoapClientBase
      */
     protected static array $asyncSoapClientsArray = [];
 
+    final public static function getRegisteredSoapClients(): Collection
+    {
+        return collect(self::$asyncSoapClientsArray);
+    }
     /**
-     * @psalm-return T
+     * @psalm-return \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      *
-     * @return T
+     * @return \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient
      */
     final public function getAsyncSoapClient(string $class = AsyncSoapClient::class): SoapClientInterface
     {

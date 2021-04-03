@@ -17,8 +17,6 @@ use Illuminate\Support\Str;
 /**
  * This class stands for Get ServiceType.
  *
- * @template T2
- * @template-extends WsdlClientBase<QueryEstDteAsyncClient>
  *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
@@ -30,7 +28,8 @@ class QueryEstDteClient extends WsdlClientBase
     /**
      * Undocumented variable.
      *
-     * @psalm-var  T2
+     * @template T2
+     * @template-extends \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<QueryEstDteAsyncClient>
      *
      * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAsyncClient
      */

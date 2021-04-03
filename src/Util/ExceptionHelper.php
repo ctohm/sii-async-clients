@@ -336,7 +336,8 @@ final class ExceptionHelper
         $msg = $e->getMessage();
         $trace0 = $e->getTrace()[0];
 
-        if (isset($trace0['args'][1])
+        if (
+            isset($trace0['args'][1])
             && \is_string($trace0['args'][1])
         ) {
             $msg .= ': ' . $trace0['args'][1];
@@ -366,7 +367,7 @@ final class ExceptionHelper
 
             foreach ($data as $key => $value) {
                 if ($count++ > self::$maxNormalizationLength) {
-                    $normalized['...'] = \sprintf('Over %d items (%d total), aborting normalization', self::$maxNormalizationLength, \count($data));
+                    $normalized['...'] = \sprintf('Over %d items  , aborting normalization', self::$maxNormalizationLength);
 
                     break;
                 }

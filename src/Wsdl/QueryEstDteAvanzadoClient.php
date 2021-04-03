@@ -15,7 +15,6 @@ use GuzzleHttp\Promise\PromiseInterface;
 /**
  * This class stands for Get ServiceType.
  *
- * @template-extends QueryEstDteClient<QueryEstDteAvAsyncClient>
  *
  * @internal
  * @psalm-internal CTOhm\SiiAsyncClients
@@ -26,10 +25,11 @@ final class QueryEstDteAvanzadoClient extends QueryEstDteClient
 
     /**
      * Undocumented variable.
+     * @template-extends \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<QueryEstDteAvAsyncClient>
      *
-     * @psalm-var QueryEstDteClient<QueryEstDteAvAsyncClient>
+     * @psalm-var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<QueryEstDteAvAsyncClient>
      *
-     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\QueryEstDteAvAsyncClient
+     * @var \CTOhm\SiiAsyncClients\Wsdl\AsyncSoap\AsyncSoapClient<QueryEstDteAvAsyncClient>
      */
     protected static $asyncSoapClient = null;
 

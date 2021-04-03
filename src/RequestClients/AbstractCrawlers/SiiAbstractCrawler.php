@@ -75,47 +75,6 @@ abstract class  SiiAbstractCrawler
     }
 
 
-    /**
-     * Dumps guzzle history.
-     */
-    public static function dumpHistory(): void
-    {
-        // dump($docsEmitidos);
-
-        // Iterate over the requests and responses
-        foreach (self::$container as $transaction) {
-            kdump($transaction['request']->getMethod());
-            //> GET, HEAD
-            if ($transaction['response']) {
-                kdump($transaction['response']->getStatusCode());
-                //> 200, 200
-            } elseif ($transaction['error']) {
-                kdump($transaction['error']);
-                //> exception
-            }
-            kdump(($transaction['options']));
-            //> dumps the request options of the sent request.
-        }
-    }
-    protected static function saveIfLocal(string $rut_empresa, string $dump_filename, string $content): void
-    {
-        $base_folder = self::getOrCreateDumpFolder($rut_empresa);
-
-        if (app()->isLocal() || app()->runningInConsole()) {
-            $path = \sprintf(
-                '%s/%s/%s_%s',
-                class_basename(static::class),
-                $rut_empresa,
-                (new Carbon())->format('Ymd'),
-                $dump_filename
-            );
-            Storage::drive('crawler')->put(
-                $path,
-                $content
-            );
-            kdump(\str_replace(storage_path(), '', Storage::drive('crawler')->path($path)));
-        }
-    }
 
 
     protected static function debugRequestHeaders()
