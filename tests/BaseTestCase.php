@@ -34,7 +34,7 @@ class BaseTestCase extends TestCase
      */
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
-        $app = $this->createApplication();
+        //   $app = $this->createApplication();
 
         parent::__construct($name, $data, $dataName);
 

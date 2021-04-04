@@ -6,37 +6,53 @@
         "php": "^7.4.3",
         "ext-curl": "*",
         "ext-dom": "*",
+        "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "ext-json": "*",
         "ext-soap": "*",
         "guzzlehttp/guzzle": "^6 || ^7",
-        "openlss/lib-array2xml": "^1.0",
-        "symfony/dom-crawler": "^5.1",
-        
+        "illuminate/bus": "^8.0",
+        "illuminate/database": "^8.0",
+        "illuminate/queue": "^8.0",
+        "jms/serializer": "^3.7",
         "meng-tian/php-async-soap": "^1.0",
         "meng-tian/soap-http-binding": "^0.2.3",
+        "openlss/lib-array2xml": "^1.0",
+        "symfony/dom-crawler": "^5.1",
         "wsdltophp/packagegenerator": "^3.3"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.9",
         "emielmolenaar/phpcs-laravel": "^2.0",
         "ergebnis/composer-normalize": "^2.13",
         "ergebnis/php-cs-fixer-config": "^2.13",
+        "fakerphp/faker": "^1.9.1",
+        "illuminate/redis": "^8.33",
+        "illuminate/support": "^8.32",
+        "illuminate/view": "^8.33",
+        "kint-php/kint": "^3.3",
+        "laravel-zero/framework": "^8.4",
         "maglnet/composer-require-checker": "^3.2",
+        "mockery/mockery": "^1.4.2",
+        "nunomaduro/phpinsights": "dev-master",
+        "orchestra/testbench": "^6.13",
         "overtrue/phplint": "^2.3",
+        "pestphp/pest": "^1.0",
+        "pestphp/pest-plugin-laravel": "^1.0",
         "php-parallel-lint/php-console-highlighter": "^0.5.0",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpstan/phpstan": "^0.12.81",
         "psalm/plugin-laravel": "^1.4",
         "squizlabs/php_codesniffer": "^3.5",
-        "vimeo/psalm": "^4.6",
-        "pestphp/pest": "^1.0",
-        "pestphp/pest-plugin-laravel": "^1.0",
-        "orchestra/testbench": "^6.13",
-        "kint-php/kint": "^3.3",
-        "nunomaduro/phpinsights": "dev-master",
-        "illuminate/support": "^8.32"
+        "symfony/config": "^5.2",
+        "symfony/dependency-injection": "^5.2",
+        "vimeo/psalm": "^4.6"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
     },
     "extra": {
         "laravel": {
@@ -49,24 +65,31 @@
     "autoload": {
         "psr-4": {
             "CTOhm\\SiiAsyncClients\\": "src/"
-            
         }
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-            
         },
-        "files":["tests/Helpers/dump.php"]
+        "files": [
+            "tests/Helpers/dump.php"
+        ]
     },
-    "scripts":{
-        "static":[
-            "psalm --show-info=false --long-progress --threads=4 --config=psalm.xml ",  
-            "phpstan analyse --memory-limit=2G   --configuration phpstan.neon"
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "post-update-cmd": [
+            "@composer normalize",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ],
-        "lint_fix":[
+        "lint_fix": [
             "phplint",
             "php-cs-fixer fix  --config=.php_cs.php"
+        ],
+        "static": [
+            "psalm --show-info=false --long-progress --threads=4 --config=psalm.xml ",
+            "phpstan analyse --memory-limit=2G   --configuration phpstan.neon"
         ]
     }
 }

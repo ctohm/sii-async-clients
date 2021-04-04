@@ -68,6 +68,11 @@ abstract class SiiAbstractCrawler
         return $dump_folder;
     }
 
+    /**
+     * @return \Closure
+     *
+     * @psalm-return \Closure(callable):\Closure(RequestInterface, array=):mixed
+     */
     protected static function debugRequestHeaders()
     {
         return static function (callable $handler) {

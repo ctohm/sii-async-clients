@@ -300,7 +300,12 @@ final class ExceptionHelper
         return \array_merge(['thrown_at' => \microtime(true)], $data);
     }
 
-    public static function normalizeBackTrace(array $trace, int $depth = 1, string $base_path = '')
+    /**
+     * @return (mixed|string)[]
+     *
+     * @psalm-return list<mixed|string>
+     */
+    public static function normalizeBackTrace(array $trace, int $depth = 1, string $base_path = ''): array
     {
         $traceArray = [];
 

@@ -186,6 +186,12 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             });
     }
 
+    /**
+     * @param mixed $siiToken
+     * @param mixed $track_id
+     *
+     * @return PromiseInterface
+     */
     public function getEstEnvio(
         $siiToken,
         $track_id
@@ -234,6 +240,9 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         return self::$soapToken;
     }
 
+    /**
+     * @return string
+     */
     public static function getSignedTokenRequest(?SiiSignatureInterface $siiSignature = null)
     {
         $siiSignature = $siiSignature ?? self::$siiSignature;

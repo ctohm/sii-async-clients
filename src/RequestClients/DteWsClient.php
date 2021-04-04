@@ -79,7 +79,13 @@ class DteWsClient extends SiiAuthClient
             // Emisor o Receptor
             $tablaHead = $crawler->filter('#tablaDatos > thead > tr > th')
                 ->eq(1)->text();
-            $parseTablaDatos = static function (
+            $parseTablaDatos = /**
+             * @param mixed $node
+             * @param mixed $index
+             *
+             * @return array
+             */
+            static function (
                 $node,
                 $index
             ) use ($tablaHead) {
@@ -147,7 +153,13 @@ class DteWsClient extends SiiAuthClient
             // Emisor o Receptor
             $tablaHead = $crawler->filter('#tablaDatos > thead > tr > th')
                 ->eq(1)->text();
-            $parseTablaDatos = static function (
+            $parseTablaDatos = /**
+             * @param mixed $node
+             * @param mixed $index
+             *
+             * @return array
+             */
+            static function (
                 $node,
                 $index
             ) use ($tablaHead) {

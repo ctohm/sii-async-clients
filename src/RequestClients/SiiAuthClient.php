@@ -490,6 +490,9 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         };
     }
 
+    /**
+     * @return string
+     */
     private function fillAndRetrieveTemporaryFile(...$contents)
     {
         $tmp_file_cert = \tmpfile();

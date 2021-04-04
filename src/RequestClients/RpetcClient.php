@@ -421,6 +421,11 @@ class RpetcClient extends RestClient
         return $CESIONES;
     }
 
+    /**
+     * @param mixed $xml_string
+     *
+     * @return null|false|string
+     */
     public static function detectStringEncoding($xml_string)
     {
         $output = [];

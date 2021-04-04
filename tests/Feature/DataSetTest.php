@@ -15,7 +15,7 @@ it(
 
         expect($email)->toBeString();
     }
-)->with('emails')->depends('is_empty');
+)->with('files')->depends('is_empty');
 
 it(
     '<fg=magenta>Test 2</> runs with given element:',
