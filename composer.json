@@ -18,9 +18,8 @@
         "jms/serializer": "^3.7",
         "meng-tian/php-async-soap": "^1.0",
         "meng-tian/soap-http-binding": "^0.2.3",
-        "openlss/lib-array2xml": "^1.0",
         "symfony/dom-crawler": "^5.1",
-        "wsdltophp/packagegenerator": "^3.3"
+        "wsdltophp/packagebase": "^5.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.9",
@@ -47,7 +46,8 @@
         "squizlabs/php_codesniffer": "^3.5",
         "symfony/config": "^5.2",
         "symfony/dependency-injection": "^5.2",
-        "vimeo/psalm": "^4.6"
+        "vimeo/psalm": "^4.6",
+        "wsdltophp/packagegenerator": "^4.0"
     },
     "config": {
         "optimize-autoloader": true,
@@ -82,6 +82,9 @@
             "@composer normalize",
             "@php artisan ide-helper:generate",
             "@php artisan ide-helper:meta"
+        ],
+        "before-autoload-dump": [
+            "rm vendor/laravel-zero/foundation -rf"
         ],
         "lint_fix": [
             "phplint",

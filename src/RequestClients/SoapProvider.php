@@ -165,7 +165,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
         return $this->getQueryEstDteAvanzadoClientInstance(self::$defaultClientOptions)
             ->getEstDteAvAsync(...$soapMethodParams)
             ->otherwise(static function ($e) {
-                dump(ExceptionHelper::normalizeException($e));
+                // dump(ExceptionHelper::normalizeException($e));
                 Log::warning($e);
 
                 return new FulfilledPromise(['error' => $e->getMessage()]);
@@ -179,7 +179,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             ...\array_values($estadoCesionParameters->jsonSerialize())
         )
             ->otherwise(static function ($e) {
-                dump(ExceptionHelper::normalizeException($e));
+                // dump(ExceptionHelper::normalizeException($e));
                 Log::warning($e);
 
                 return new FulfilledPromise(['error' => $e->getMessage()]);
@@ -201,7 +201,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             $track_id
         ); /*
             ->otherwise(static function ($e) {
-                dump(ExceptionHelper::normalizeException($e));
+               // dump(ExceptionHelper::normalizeException($e));
                 Log::warning($e);
 
                 return new FulfilledPromise(['error' => $e->getMessage()]);
@@ -217,7 +217,7 @@ class SoapProvider implements RetrievesEventosHistoricosInterface
             ...\array_values($estadoCesionRelacionParameters->jsonSerialize())
         )
             ->otherwise(static function ($e) {
-                dump(ExceptionHelper::normalizeException($e));
+                // dump(ExceptionHelper::normalizeException($e));
                 Log::warning($e);
 
                 return new FulfilledPromise(['error' => $e->getMessage()]);
