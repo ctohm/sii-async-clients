@@ -116,7 +116,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         self::$certs = $siiSignature->getCerts();
 
         self::$client = $this->getClient($clientOptions);
-        // dump(self::$tempFolder);
+        //// dump(self::$tempFolder);
     }
 
     /**
@@ -276,22 +276,10 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
 
             if (\mb_strpos($contents, 'SELECCIONE A QUIEN REPRESENTAR') !== false) {
                 static::$authenticatedOnSii = true;
-
-                if ($debug) {
-                    dump([__CLASS__ => \sprintf('using cached token %s', $siiToken['token'])]);
-                }
             } else {
                 $this->authOnSii(['stats' => false]);
 
                 if ($tokenCookie = $this->getCookieJar()->getCookieByName('token')) {
-                    if ($debug) {
-                        dump(
-                            [
-                                __CLASS__ => \sprintf('renewed token %s', $tokenCookie->getValue()),
-                            ]
-                        );
-                    }
-
                     Cache::set('siiToken', ['token' => $tokenCookie->getValue()], 300);
                 }
             }
@@ -310,11 +298,11 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         $clientOptions['cookies'] = $clientOptions['cookies'] ?? [];
 
         if (!static::$cookiejar) {
-            //  dump(['CookieJar existente'=>self::$cookiejar->getCookieByName('token')]);
+            // // dump(['CookieJar existente'=>self::$cookiejar->getCookieByName('token')]);
             if ($clientOptions['cookies'] instanceof CookieJar) {
                 static::$cookiejar = $clientOptions['cookies'];
             } else {
-                //  dump('new cookiejar');
+                // // dump('new cookiejar');
                 static::$cookiejar = new \GuzzleHttp\Cookie\CookieJar();
             }
         }
@@ -333,7 +321,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
             static::$history = Middleware::history(static::$container);
 
             $multiHandler = app(CurlMultiHandler::class);
-            // dump([__METHOD__ => $multiHandler]);
+            //// dump([__METHOD__ => $multiHandler]);
             $handlerStack = HandlerStack::create($multiHandler);
             // or $handlerStack = HandlerStack::create($mock); if using the Mock handler.
 
@@ -418,7 +406,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         ];
 
         if ($printReq) {
-            dump($reqParams);
+            // dump($reqParams);
         }
         //dump($reqOptions);
         $dummyResponse = new Response(500);
@@ -426,7 +414,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
         try {
             return self::$client->request($verb, $url, $reqOptions);
         } catch (ConnectException $e) {
-            dump(ExceptionHelper::normalizeException($e));
+            // dump(ExceptionHelper::normalizeException($e));
 
             if ($options['retry'] ?? 0) {
                 --$options['retry'];
@@ -437,12 +425,12 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
 
             return new Response(500, [], $e->getMessage());
         } catch (BadResponseException $e) {
-            dump(ExceptionHelper::normalizeException($e));
+            // dump(ExceptionHelper::normalizeException($e));
             $res = $e->getResponse();
 
             return $res ?? $dummyResponse;
         } catch (\Exception $e) {
-            dump(ExceptionHelper::normalizeException($e));
+            // dump(ExceptionHelper::normalizeException($e));
 
             return $dummyResponse;
         }
@@ -472,7 +460,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
                 foreach ($request->getHeaders() as $headername => $headervalue) {
                     $headers[$headername] = $headervalue[0];
                 }
-                dump([
+                /* dump([
                     'headers' => Arr::except($headers, [
                         //'Cookie',
                     ]),
@@ -483,7 +471,7 @@ class SiiAuthClient extends SiiAbstractCrawler implements RequestClientInterface
                     'method' => $request->getMethod(),
                     'target' => $request->getUri()->__toString(),
                     'body' => $request->getBody()->__toString(),
-                ]);
+                ]);*/
 
                 return $handler($request, $options);
             };
