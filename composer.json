@@ -3,7 +3,7 @@
     "description": "SOAP and Curl bases asyncronous Clients for the chilean SII",
     "license": "MIT",
     "require": {
-        "php": "^7.4.3",
+        "php": "^7.4.3||>=8",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-libxml": "*",
