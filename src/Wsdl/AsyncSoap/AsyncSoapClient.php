@@ -14,7 +14,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 use Meng\AsyncSoap\SoapClientInterface;
 use Meng\Soap\HttpBinding\HttpBinding;
 use Psr\Http\Message\ResponseInterface;
-
+use GuzzleHttp\Promise\Coroutine;
 /**
  * @method void __setCookie($name, $value)
  * @method object getEstDte( $rutConsultante,$dvConsultante,$rutCompania,$dvCompania,$rutReceptor,$dvReceptor,$tipoDte,$folioDte,$fechaEmisionDte,$montoDte,$token)
@@ -72,7 +72,7 @@ class AsyncSoapClient implements SoapClientInterface
         $inputHeaders = null,
         ?array &$outputHeaders = null
     ) {
-        return \GuzzleHttp\Promise\coroutine(
+        return Coroutine::of(
             function () use ($name, $arguments, $options, $inputHeaders, &$outputHeaders) {
                 /** @var \Meng\Soap\HttpBinding\HttpBinding $httpBinding */
                 $httpBinding = (yield $this->httpBindingPromise);

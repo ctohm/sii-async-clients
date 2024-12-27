@@ -114,11 +114,11 @@ class DteCedibleResponse implements Arrayable, JsonSerializable
      *
      * @return static
      */
-    public function __set(string $name, $value): self
+    public function __set(string $name, $value): void
     {
         $this->_data[$name] = $value;
 
-        return $this;
+    
     }
 
     /**

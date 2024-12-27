@@ -41,7 +41,9 @@ class RpetcClient extends RestClient
      * @var array
      */
     public static $tipoDiccionario = [
-        'TIPO_DEUDOR', 'TIPO_CEDENTE', 'TIPO_CESIONARIO',
+        'TIPO_DEUDOR',
+        'TIPO_CEDENTE',
+        'TIPO_CESIONARIO',
     ];
 
     public static string $common_uri = 'https://palena.sii.cl/cgi_rtc/RTC/';
@@ -241,6 +243,8 @@ class RpetcClient extends RestClient
             );
             $contents = $response->getBody()->getContents();
 
+            $contents = iconv(mb_detect_encoding($contents, mb_detect_order(), true), "UTF-8", $contents);
+
             if ('TXT' === $query['TXTXML']) {
                 return $this->mapCsvToArray($contents);
             }
@@ -251,7 +255,7 @@ class RpetcClient extends RestClient
             $datos_consulta = $xml->xpath('.//SII:RESP_BODY/DATOS_CONSULTA');
             $consultaCollection = collect(\array_change_key_case(\json_decode(\json_encode($datos_consulta[0]), true)));
 
-            $cesionesCollection = collect($cesiones)->map(static fn (SimpleXMLElement $xmlElement) => \array_change_key_case(\json_decode(\json_encode($xmlElement), true)));
+            $cesionesCollection = collect($cesiones)->map(static fn(SimpleXMLElement $xmlElement) => \array_change_key_case(\json_decode(\json_encode($xmlElement), true)));
 
             return $consultaCollection->put('cesiones', $cesionesCollection);
         } catch (\Exception $e) {
@@ -279,12 +283,15 @@ class RpetcClient extends RestClient
         }
 
         [
-            $rutEmisorConDV, $tipo_doc, $folio
+            $rutEmisorConDV,
+            $tipo_doc,
+            $folio
         ] = \explode('_', $id_documento);
 
         try {
             [
-                $rut_emisor, $dv_emisor
+                $rut_emisor,
+                $dv_emisor
             ] = Misc::validaRut($rutEmisorConDV);
 
             $dte_url = 'RTCConsulta.cgi';
@@ -309,7 +316,8 @@ class RpetcClient extends RestClient
             $detalleConsulta = $response->getBody()->getContents();
 
             [
-                $tablaContenidoHTML, $infoDetalle
+                $tablaContenidoHTML,
+                $infoDetalle
             ] = $this->parseDetalleHtml($detalleConsulta);
 
             $this->clearRepresentacion();
@@ -370,7 +378,7 @@ class RpetcClient extends RestClient
             $cesionesArray = $this->getCesionesFromHTML(new Crawler($contents), $rut_empresa);
 
             return $cesionesArray;
-            $ids = $cesionesArray->map(static fn (array $c) => $c['sii_id']);
+            $ids = $cesionesArray->map(static fn(array $c) => $c['sii_id']);
             $query2 = [
                 'RUT1' => '**',
                 'RUT2' => '**',
@@ -448,7 +456,7 @@ class RpetcClient extends RestClient
             return \count($row) === \count($fields);
         })->map(static function ($row) use ($fields) {
             return \array_combine(
-                \array_map(static fn ($key) => Str::snake(\mb_strtolower($key)), $fields),
+                \array_map(static fn($key) => Str::snake(\mb_strtolower($key)), $fields),
                 $row
             );
         });
@@ -486,7 +494,7 @@ class RpetcClient extends RestClient
                     'Referer' => 'https://herculesr.sii.cl/cgi_AUT2000/admRPDOBuild.cgi',
                 ],
                 'form_params' => ['RUT_RPDO' => $rutEmpresa, 'APPLS' => 'RPETC'],
-            ]), static fn ($reqOptions) => null/*kdump($reqOptions)*/);
+            ]), static fn($reqOptions) => null/*kdump($reqOptions)*/);
             $response = $this->sendSiiRequest(
                 'POST',
                 'https://herculesr.sii.cl/cgi_AUT2000/admRepresentar.cgi',
@@ -548,7 +556,8 @@ class RpetcClient extends RestClient
 
             if (!$crawler) {
                 return [
-                    $detalleConsultaDOM, null,
+                    $detalleConsultaDOM,
+                    null,
                 ];
             }
 
@@ -556,7 +565,8 @@ class RpetcClient extends RestClient
 
             if (!$rows->count()) {
                 return [
-                    $detalleConsultaDOM, null,
+                    $detalleConsultaDOM,
+                    null,
                 ];
             }
 
@@ -589,7 +599,8 @@ class RpetcClient extends RestClient
         }
 
         return [
-            $detalleConsultaDOM, null,
+            $detalleConsultaDOM,
+            null,
         ];
     }
 

@@ -27,7 +27,7 @@ it(
         [$rutEmisor, $tipoDoc, $folio] = \explode('_', (string) ($dte_id ?? '1-1_0_0'));
 
         $fecha_desde = Carbon::parse('2020-03-01');
-        $fecha_hasta = Carbon::parse('2020-05-21');
+        $fecha_hasta = Carbon::parse('2020-04-01');
         $result = $this->restClient->getCertificadosForm($rutEmisor, $fecha_desde, $fecha_hasta, ['TIPOCONSULTA' => RpetcClient::TIPO_CEDENTE]);
 
         expect($result)->toBeInstanceOf(Collection::class);
@@ -50,7 +50,7 @@ it(
 
         expect($result)->toBeInstanceOf(Collection::class);
         expect($result->get('cesiones'))->toBeInstanceOf(Collection::class);
-        $result->get('cesiones')->each(static fn (array $item) => expect($item)->toHaveKeys(['estado_cesion', 'deudor', 'mnt_cesion', 'cedente', 'cesionario']));
+        $result->get('cesiones')->each(static fn(array $item) => expect($item)->toHaveKeys(['estado_cesion', 'deudor', 'mnt_cesion', 'cedente', 'cesionario']));
     }
 )
     ->group('getAec')
@@ -102,7 +102,7 @@ it(
         $fecha_hasta = Carbon::parse('2020-12-21');
         $result = $this->restClient->getCesionesRecibidas($rutEmisor, $fecha_desde, $fecha_hasta);
         expect($result)->toBeInstanceOf(Collection::class);
-        $result->each(static fn ($res) => expect($res)->toHaveKeys(['estado_cesion', 'deudor', 'mnt_cesion', 'cedente', 'cesionario']));
+        $result->each(static fn($res) => expect($res)->toHaveKeys(['estado_cesion', 'deudor', 'mnt_cesion', 'cedente', 'cesionario']));
 
         //dump($result);
     }
