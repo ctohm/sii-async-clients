@@ -17,12 +17,13 @@
         
         "meng-tian/php-async-soap": "^1.0",
         "meng-tian/soap-http-binding": "^0.2.3",
-        "wsdltophp/packagegenerator": "^3.3"
+        "wsdltophp/packagegenerator": "^3.3",
+        "guzzlehttp/promises": "^2.0"
     },
     "require-dev": {
         "emielmolenaar/phpcs-laravel": "^2.0",
         "ergebnis/composer-normalize": "^2.13",
-        "ergebnis/php-cs-fixer-config": "^2.13",
+        
         "maglnet/composer-require-checker": "^3.2",
         "overtrue/phplint": "^2.3",
         "php-parallel-lint/php-console-highlighter": "^0.5.0",
@@ -35,7 +36,7 @@
         "pestphp/pest-plugin-laravel": "^1.0",
         "orchestra/testbench": "^6.13",
         "kint-php/kint": "^3.3",
-        "nunomaduro/phpinsights": "dev-master",
+        
         "illuminate/support": "^8.32"
     },
     "extra": {
@@ -65,8 +66,14 @@
             "phpstan analyse --memory-limit=2G   --configuration phpstan.neon"
         ],
         "lint_fix":[
-            "phplint",
-            "php-cs-fixer fix  --config=.php_cs.php"
+            "phplint"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "pestphp/pest-plugin": true,
+            "ergebnis/composer-normalize": true
+        }
     }
 }

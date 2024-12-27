@@ -45,9 +45,7 @@ class BaseTestCase extends TestCase
     /**
      * This method is called before the first test of this test class is run.
      */
-    public static function setUpBeforeClass(): void
-    {
-    }
+    public static function setUpBeforeClass(): void {}
 
     protected function setUp(): void
     {
@@ -96,7 +94,7 @@ class BaseTestCase extends TestCase
 
         $app['config']->set('filesystems.local.root', storage_path());
 
-        $app['config']->set('sii.certificado', (\file_get_contents(storage_path('cert.pfx'))));
+        $app['config']->set('sii.certificado', (\file_get_contents(storage_path('clave.base64'))));
 
         $app->singleton(SiiSignature::class, static function () {
             $pfxData = (object) [
